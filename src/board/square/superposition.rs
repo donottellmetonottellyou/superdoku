@@ -23,6 +23,10 @@ impl Superposition {
             .cloned()
             .context("Failed because there were no options to collapse into")
     }
+
+    pub fn remove(&mut self, number: Number) -> bool {
+        self.superposition.remove(&number)
+    }
 }
 impl Default for Superposition {
     fn default() -> Self {

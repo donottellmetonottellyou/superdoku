@@ -40,6 +40,16 @@ impl Square {
                 .context("Failed to collapse superposition"),
         }
     }
+
+    pub fn remove(&mut self, number: Number) -> Result<bool> {
+        match self {
+            Self::Number(collapsed) if *collapsed == number => Result::Err(anyhow!(
+                "Tried to remove {number} from {number}: fatal error."
+            )),
+            Self::Number(_) => Result::Ok(false),
+            Self::Superposition(superposition) => Result::Ok(superposition.remove(number)),
+        }
+    }
 }
 impl Default for Square {
     fn default() -> Self {
