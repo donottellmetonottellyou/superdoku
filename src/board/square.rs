@@ -1,7 +1,7 @@
 mod number;
 mod superposition;
 
-use number::Number;
+pub use number::Number;
 use superposition::Superposition;
 
 use anyhow::{anyhow, Context, Result};

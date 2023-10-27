@@ -1,14 +1,27 @@
 mod square;
 
-use square::Square;
+use square::{Number, Square};
 
-use anyhow::Context;
+use anyhow::{Context, Result};
 
 use std::fmt::Display;
 
 #[derive(Clone, Debug)]
 pub struct Board {
     board: [[Square; 9]; 9],
+}
+impl Board {
+    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
+        todo!()
+    }
+
+    pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
+        todo!()
+    }
+
+    fn propogate_collapse(&mut self, number: Number, location: (usize, usize)) {
+        todo!()
+    }
 }
 impl Default for Board {
     fn default() -> Self {
