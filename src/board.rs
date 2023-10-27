@@ -11,22 +11,12 @@ pub struct Board {
     board: [[Square; 9]; 9],
 }
 impl Board {
-    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
-        todo!()
-    }
-
     pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
         todo!()
     }
 
-    fn propogate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
-        for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1]
-                .remove(number)
-                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
-        }
-
-        Result::Ok(())
+    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
+        todo!()
     }
 
     fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
@@ -76,6 +66,16 @@ impl Board {
         }
 
         neighbors
+    }
+
+    fn propogate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
+        for location in Self::find_neighbor_locations(location) {
+            self.board[location.0][location.1]
+                .remove(number)
+                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
+        }
+
+        Result::Ok(())
     }
 }
 impl Default for Board {
