@@ -13,7 +13,21 @@ pub struct Board {
 }
 impl Board {
     pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
-        todo!()
+        let mut rng = thread_rng();
+
+        let location = *self
+            .find_lowest_superpositions()
+            .context("Failed to find lowest superpositions")?
+            .choose(&mut rng)
+            .context("find_lowest_superpositions() inexplicably returned an empty Vec")?;
+
+        let number = self.board[location.0][location.1]
+            .collapse_random()
+            .with_context(|| format!("Failed to randomly collapse square at {location:?}"))?;
+
+        self.propogate_collapse(number, location).with_context(|| format!("Failed to propagate collapse of {location:?} to {number}")).context("Failed to properly propagate wave-function collapse: Board is probably in an invalid state")?;
+
+        Result::Ok((number, location))
     }
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
