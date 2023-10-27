@@ -23,8 +23,8 @@ impl Board {
         todo!()
     }
 
-    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 19] {
-        let mut neighbors = [(0, 0); 19];
+    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
+        let mut neighbors = [(0, 0); 20];
         let mut neighbors_iter = neighbors.iter_mut();
 
         let location_box = (location.0 / 3, location.1 / 3);
