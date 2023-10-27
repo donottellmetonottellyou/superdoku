@@ -2,7 +2,8 @@ mod square;
 
 use square::{Number, Square};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+use rand::prelude::*;
 
 use std::{cmp::Ordering, fmt::Display};
 
@@ -19,7 +20,7 @@ impl Board {
         todo!()
     }
 
-    fn find_lowest_superpositions(&self) -> Vec<(usize, usize)> {
+    fn find_lowest_superpositions(&self) -> Result<Vec<(usize, usize)>> {
         let mut lowest_superpositions = Vec::new();
         let mut lowest_number = 9;
 
@@ -39,7 +40,13 @@ impl Board {
             })
         });
 
-        lowest_superpositions
+        if lowest_number == 0 {
+            Result::Err(anyhow!(
+                "Board found to be in an invalid state: Lowest superposition is zero"
+            ))
+        } else {
+            Result::Ok(lowest_superpositions)
+        }
     }
 
     fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
