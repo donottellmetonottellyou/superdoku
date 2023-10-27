@@ -4,7 +4,7 @@ use square::{Number, Square};
 
 use anyhow::{Context, Result};
 
-use std::fmt::Display;
+use std::{cmp::Ordering, fmt::Display};
 
 #[derive(Clone, Debug)]
 pub struct Board {
@@ -17,6 +17,29 @@ impl Board {
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
         todo!()
+    }
+
+    fn find_lowest_superpositions(&self) -> Vec<(usize, usize)> {
+        let mut lowest_superpositions = Vec::new();
+        let mut lowest_number = 9;
+
+        self.board.iter().enumerate().for_each(|(i, row)| {
+            row.iter().enumerate().for_each(|(j, square)| {
+                if let Ok(superposition_number) = square.superposition_number() {
+                    match superposition_number.cmp(&lowest_number) {
+                        Ordering::Equal => lowest_superpositions.push((i, j)),
+                        Ordering::Greater => {}
+                        Ordering::Less => {
+                            lowest_number = superposition_number;
+                            lowest_superpositions.clear();
+                            lowest_superpositions.push((i, j));
+                        }
+                    }
+                }
+            })
+        });
+
+        lowest_superpositions
     }
 
     fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {

@@ -43,11 +43,20 @@ impl Square {
 
     pub fn remove(&mut self, number: Number) -> Result<bool> {
         match self {
-            Self::Number(collapsed) if *collapsed == number => Result::Err(anyhow!(
-                "Tried to remove {number} from {number}: fatal error."
-            )),
+            Self::Number(collapsed) if *collapsed == number => {
+                Result::Err(anyhow!("Tried to remove {number} from {number}"))
+            }
             Self::Number(_) => Result::Ok(false),
             Self::Superposition(superposition) => Result::Ok(superposition.remove(number)),
+        }
+    }
+
+    pub fn superposition_number(&self) -> Result<usize> {
+        match self {
+            Self::Number(collapsed) => Result::Err(anyhow!(
+                "Square already collapsed into {collapsed}, it doesn't have a superposition number"
+            )),
+            Self::Superposition(superposition) => Result::Ok(superposition.superposition_number()),
         }
     }
 }

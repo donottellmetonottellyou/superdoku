@@ -27,6 +27,10 @@ impl Superposition {
     pub fn remove(&mut self, number: Number) -> bool {
         self.superposition.remove(&number)
     }
+
+    pub fn superposition_number(&self) -> usize {
+        self.superposition.len()
+    }
 }
 impl Default for Superposition {
     fn default() -> Self {
