@@ -22,6 +22,58 @@ impl Board {
     fn propogate_collapse(&mut self, number: Number, location: (usize, usize)) {
         todo!()
     }
+
+    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
+        let mut neighbors = [(0, 0); 20];
+        let mut neighbors_iter = neighbors.iter_mut();
+
+        let location_box = (location.0 / 3, location.1 / 3);
+        let location_box_corner = (location_box.0 * 3, location_box.1 * 3);
+
+        // We find the neighbors in the same box.
+        for i in 0..3 {
+            for j in 0..3 {
+                let box_location = (location_box_corner.0 + i, location_box_corner.1 + j);
+                if box_location == location {
+                    continue;
+                }
+
+                *neighbors_iter
+                    .next()
+                    .context("Ran out of neighbor spaces while searching box")
+                    .context("Fatally failed to find neighbor locations")
+                    .unwrap() = box_location
+            }
+        }
+
+        // We find the neighbors in the same row.
+        for j in 0..9 {
+            if location_box.1 == j / 3 {
+                continue;
+            }
+
+            *neighbors_iter
+                .next()
+                .context("Ran out of neighbor spaces while searching row")
+                .context("Fatally failed to find neighbor locations")
+                .unwrap() = (location.0, j);
+        }
+
+        // We find the neighbors in the same column.
+        for i in 0..9 {
+            if location_box.0 == i / 3 {
+                continue;
+            }
+
+            *neighbors_iter
+                .next()
+                .context("Ran out of neighbor spaces while searching column")
+                .context("Fatally failed to find neighbor locations")
+                .unwrap() = (i, location.1)
+        }
+
+        neighbors
+    }
 }
 impl Default for Board {
     fn default() -> Self {
@@ -72,6 +124,8 @@ mod tests {
 
     use pretty_assertions::assert_eq;
 
+    use std::collections::HashSet;
+
     #[test]
     fn square_terminal_representation_looks_right() {
         let correct_display = vec![
@@ -94,5 +148,38 @@ mod tests {
         .concat();
 
         assert_eq!(correct_display, format!("{}", Board::default()));
+    }
+
+    #[test]
+    fn find_neighbor_locations_finds_correct_locations() {
+        // 5e or e5
+        let location = (4, 4);
+        let correct_neighbors = HashSet::from([
+            (3, 3),
+            (3, 4),
+            (3, 5),
+            (4, 3),
+            (4, 5),
+            (5, 3),
+            (5, 4),
+            (5, 5),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (4, 6),
+            (4, 7),
+            (4, 8),
+            (0, 4),
+            (1, 4),
+            (2, 4),
+            (6, 4),
+            (7, 4),
+            (8, 4),
+        ]);
+
+        assert_eq!(
+            correct_neighbors,
+            HashSet::from(Board::find_neighbor_locations(location))
+        );
     }
 }
