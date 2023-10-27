@@ -25,7 +25,7 @@ impl Board {
             .collapse_random()
             .with_context(|| format!("Failed to randomly collapse square at {location:?}"))?;
 
-        self.propogate_collapse(number, location)
+        self.propagate_collapse(number, location)
             .with_context(|| format!("Failed to propagate collapse of {location:?} to {number}"))
             .context("Board is probably in an invalid state")?;
 
@@ -34,7 +34,7 @@ impl Board {
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<bool> {
         if let Ok(()) = self.board[location.0][location.1].collapse(number) {
-            self.propogate_collapse(number, location)
+            self.propagate_collapse(number, location)
                 .with_context(|| {
                     format!("Failed to propagate collapse of {location:?} to {number}")
                 })
@@ -124,7 +124,7 @@ impl Board {
         neighbors
     }
 
-    fn propogate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
+    fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
         for location in Self::find_neighbor_locations(location) {
             self.board[location.0][location.1]
                 .remove(number)
