@@ -23,8 +23,8 @@ impl Board {
         todo!()
     }
 
-    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
-        let mut neighbors = [(0, 0); 20];
+    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 19] {
+        let mut neighbors = [(0, 0); 19];
         let mut neighbors_iter = neighbors.iter_mut();
 
         let location_box = (location.0 / 3, location.1 / 3);
@@ -41,7 +41,6 @@ impl Board {
                 *neighbors_iter
                     .next()
                     .context("Ran out of neighbor spaces while searching box")
-                    .context("Fatally failed to find neighbor locations")
                     .unwrap() = box_location
             }
         }
@@ -55,7 +54,6 @@ impl Board {
             *neighbors_iter
                 .next()
                 .context("Ran out of neighbor spaces while searching row")
-                .context("Fatally failed to find neighbor locations")
                 .unwrap() = (location.0, j);
         }
 
@@ -68,7 +66,6 @@ impl Board {
             *neighbors_iter
                 .next()
                 .context("Ran out of neighbor spaces while searching column")
-                .context("Fatally failed to find neighbor locations")
                 .unwrap() = (i, location.1)
         }
 
