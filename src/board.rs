@@ -30,8 +30,8 @@ impl Display for Board {
         for box_row in 0..3 {
             for row in 0..3 {
                 f.write_str(&format!("{} | ", 9 - ((box_row * 3) + row)))?;
-                for square_triplet in 0..3 {
-                    for square in 0..3 {
+                for _square_triplet in 0..3 {
+                    for _square in 0..3 {
                         f.write_str(&format!(
                             "{} ",
                             row_reversed_board_iter
