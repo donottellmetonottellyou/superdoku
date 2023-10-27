@@ -25,13 +25,25 @@ impl Board {
             .collapse_random()
             .with_context(|| format!("Failed to randomly collapse square at {location:?}"))?;
 
-        self.propogate_collapse(number, location).with_context(|| format!("Failed to propagate collapse of {location:?} to {number}")).context("Failed to properly propagate wave-function collapse: Board is probably in an invalid state")?;
+        self.propogate_collapse(number, location)
+            .with_context(|| format!("Failed to propagate collapse of {location:?} to {number}"))
+            .context("Board is probably in an invalid state")?;
 
         Result::Ok((number, location))
     }
 
-    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
-        todo!()
+    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<bool> {
+        if let Ok(()) = self.board[location.0][location.1].collapse(number) {
+            self.propogate_collapse(number, location)
+                .with_context(|| {
+                    format!("Failed to propagate collapse of {location:?} to {number}")
+                })
+                .context("Board is probably in an invalid state")?;
+
+            Result::Ok(true)
+        } else {
+            Result::Ok(false)
+        }
     }
 
     fn find_lowest_superpositions(&self) -> Result<Vec<(usize, usize)>> {
