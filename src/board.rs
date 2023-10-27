@@ -32,6 +32,10 @@ impl Board {
         Result::Ok((number, location))
     }
 
+    pub fn reset(&mut self) {
+        *self = Self::default();
+    }
+
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<bool> {
         if let Ok(()) = self.board[location.0][location.1].collapse(number) {
             self.propagate_collapse(number, location)
