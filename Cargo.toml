@@ -1,0 +1,15 @@
+[package]
+    name    = "superdoku"
+    version = "0.1.0"
+
+    authors = ["Jade Lynn Masker <donottellmetonottellyou@gmail.com>"]
+
+    edition = "2021"
+    publish = false
+
+[dependencies]
+    anyhow = "1.*"
+    rand   = "0.8.*"
+
+[dev-dependencies]
+    pretty_assertions = "1.*"
