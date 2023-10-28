@@ -8,8 +8,9 @@
     publish = false
 
 [dependencies]
-    anyhow = "1.*"
-    rand   = "0.8.*"
+    anyhow = { version = "1.*" }
+    clap   = { version = "4.*", features = ["derive"] }
+    rand   = { version = "0.8.*" }
 
 [dev-dependencies]
-    pretty_assertions = "1.*"
+    pretty_assertions = { version = "1.*" }
