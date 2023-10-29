@@ -1,6 +1,7 @@
 mod square;
 
-use square::{Number, Square};
+pub use square::Number;
+use square::Square;
 
 use anyhow::{anyhow, Context, Result};
 use rand::prelude::*;
