@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["Superdoku"]
+  "cSpell.words": ["readln", "Superdoku"],
+  "rust-analyzer.showUnlinkedFileNotification": false
 }
