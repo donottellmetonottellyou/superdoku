@@ -1,5 +1,13 @@
 pub static IO_ERROR: &str = "A fatal I/O error occurred";
 
+pub fn location_to_string(location: (usize, usize)) -> String {
+    format!(
+        "{}{}",
+        (location.0 as u8 + b'a') as char,
+        (location.1 as u8 + b'1') as char
+    )
+}
+
 macro_rules! readln {
     () => {{
         use crate::cli::io::IO_ERROR;

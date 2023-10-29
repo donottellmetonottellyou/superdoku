@@ -8,7 +8,7 @@ use clap::Parser;
 #[command(author, version)]
 pub struct Args {
     /// Use the command line interface version of Superdoku
-    #[arg(short, long)]
+    #[arg(short, long, default_value_t = true)]
     pub cli: bool,
 }
 
