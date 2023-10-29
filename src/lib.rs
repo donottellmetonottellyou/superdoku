@@ -12,6 +12,13 @@ pub struct Board {
     board: [[Square; 9]; 9],
 }
 impl Board {
+    pub fn is_solved(&self) -> bool {
+        self.board
+            .iter()
+            .flat_map(|row| row.iter())
+            .all(|square| square.superposition_number().is_err())
+    }
+
     pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
         let mut rng = thread_rng();
 
