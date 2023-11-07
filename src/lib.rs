@@ -37,7 +37,7 @@ impl Board {
             .with_context(|| format!("Failed to propagate collapse of {location:?} to {number}"))
             .context("Board is probably in an invalid state")?;
 
-        Result::Ok((number, location))
+        Ok((number, location))
     }
 
     pub fn reset(&mut self) {
@@ -52,9 +52,9 @@ impl Board {
                 })
                 .context("Board is probably in an invalid state")?;
 
-            Result::Ok(true)
+            Ok(true)
         } else {
-            Result::Ok(false)
+            Ok(false)
         }
     }
 
@@ -79,11 +79,11 @@ impl Board {
         });
 
         if lowest_number == 0 {
-            Result::Err(anyhow!(
+            Err(anyhow!(
                 "Board found to be in an invalid state: Lowest superposition is zero"
             ))
         } else {
-            Result::Ok(lowest_superpositions)
+            Ok(lowest_superpositions)
         }
     }
 
@@ -143,7 +143,7 @@ impl Board {
                 .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
         }
 
-        Result::Ok(())
+        Ok(())
     }
 }
 impl Default for Board {
