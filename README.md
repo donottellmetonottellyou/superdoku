@@ -1,3 +1,3 @@
 #  Superdoku
 
-This is (will be) a sodoku game solver/cheater.
+This is a Sudoku game solver/cheater. Currently only the cli version works.
