@@ -35,9 +35,15 @@ impl Square {
             Self::Number(collapsed) => Result::Err(anyhow!(
                 "Square already collapsed into {collapsed}, cannot collapse into any new number"
             )),
-            Self::Superposition(superposition) => superposition
-                .collapse_random()
-                .context("Failed to collapse superposition"),
+            Self::Superposition(superposition) => {
+                let number = superposition
+                    .collapse_random()
+                    .context("Failed to collapse superposition")?;
+
+                *self = Self::Number(number);
+
+                Result::Ok(number)
+            }
         }
     }
 
