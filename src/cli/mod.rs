@@ -13,7 +13,7 @@ pub fn main() {
         }
         let mut board = Board::default();
 
-        'game: loop {
+        while !board.is_solved() {
             println!("{board}");
             match menus::game::menu() {
                 menus::game::Choice::Move(number, location) => {
@@ -42,8 +42,12 @@ pub fn main() {
                         return;
                     }
                 },
-                menus::game::Choice::End => break 'game,
+                menus::game::Choice::End => continue 'main,
             }
         }
+
+        // If 'game exits without returning early or continuing the outer 'main loop, we have solved
+        // the board!
+        println!("The board was solved!");
     }
 }
