@@ -44,10 +44,7 @@ fn parse_move(choice: &str) -> Option<Choice> {
 }
 
 fn parse_location(location: &str) -> Option<(usize, usize)> {
-    let coordinates: Vec<_> = location
-        .split(' ')
-        .filter_map(|coordinate| coordinate.as_bytes().first().copied())
-        .collect();
+    let coordinates: Vec<_> = location.bytes().collect();
     if coordinates.len() != 2 {
         return None;
     }
