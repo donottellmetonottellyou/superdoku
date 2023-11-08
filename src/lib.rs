@@ -58,6 +58,10 @@ impl Board {
         }
     }
 
+    pub fn undo(&mut self, location: (usize, usize)) -> Result<bool> {
+        todo!()
+    }
+
     fn find_lowest_superpositions(&self) -> Result<Vec<(usize, usize)>> {
         let mut lowest_superpositions = Vec::new();
         let mut lowest_number = 9;
