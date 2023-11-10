@@ -85,12 +85,28 @@ impl Board {
         }
     }
 
-    fn get(&self, location: (usize, usize)) -> Option<&Square> {
-        self.board.get(location.0)?.get(location.1)
+    fn get(&self, location: (usize, usize)) -> &Square {
+        self.board
+            .get(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
+            .get(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
     }
 
-    fn get_mut(&mut self, location: (usize, usize)) -> Option<&mut Square> {
-        self.board.get_mut(location.0)?.get_mut(location.1)
+    fn get_mut(&mut self, location: (usize, usize)) -> &mut Square {
+        self.board
+            .get_mut(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
+            .get_mut(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
     }
 
     fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) {
