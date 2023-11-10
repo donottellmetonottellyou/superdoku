@@ -58,6 +58,16 @@ impl Board {
         }
     }
 
+    pub fn undo(&mut self, location: (usize, usize)) -> bool {
+        if !self.board[location.0][location.1].undo_collapse() {
+            return false;
+        };
+
+        self.propagate_superposition(location);
+
+        true
+    }
+
     fn find_lowest_superpositions(&self) -> Result<Vec<(usize, usize)>> {
         let mut lowest_superpositions = Vec::new();
         let mut lowest_number = 9;
@@ -84,6 +94,24 @@ impl Board {
             ))
         } else {
             Ok(lowest_superpositions)
+        }
+    }
+
+    fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
+        for location in Self::find_neighbor_locations(location) {
+            self.board[location.0][location.1]
+                .remove(number)
+                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
+        }
+
+        Ok(())
+    }
+
+    fn propagate_superposition(&mut self, location: (usize, usize)) {
+        for neighbor in Self::find_neighbor_locations(location) {
+            if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
+                self.board[location.0][location.1].remove(collapsed).ok();
+            }
         }
     }
 
@@ -134,16 +162,6 @@ impl Board {
         }
 
         neighbors
-    }
-
-    fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
-        for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1]
-                .remove(number)
-                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
-        }
-
-        Ok(())
     }
 }
 impl Default for Board {

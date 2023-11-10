@@ -1,6 +1,6 @@
 [package]
     name    = "superdoku"
-    version = "0.1.0"
+    version = "0.1.1"
 
     authors = ["Jade Lynn Masker <donottellmetonottellyou@gmail.com>"]
 
@@ -14,3 +14,8 @@
 
 [dev-dependencies]
     pretty_assertions = { version = "1.*" }
+
+[profile.release]
+    codegen-units = 1
+    lto           = true
+    strip         = true
