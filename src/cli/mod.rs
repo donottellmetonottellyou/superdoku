@@ -32,6 +32,19 @@ pub fn main() {
                         }
                     }
                 }
+                menus::game::Choice::Undo(location) => {
+                    if board.undo(location) {
+                        println!(
+                            "Successfully removed move at {}",
+                            io::location_to_string(location)
+                        );
+                    } else {
+                        println!(
+                            "Failed to undo move at {}",
+                            io::location_to_string(location)
+                        );
+                    }
+                }
                 menus::game::Choice::MoveRandom => match board.random_collapse() {
                     Ok((number, location)) => println!(
                         "Successfully chose {number} at {}",
