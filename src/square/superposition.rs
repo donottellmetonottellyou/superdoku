@@ -10,10 +10,6 @@ pub struct Superposition {
     superposition: BTreeSet<Number>,
 }
 impl Superposition {
-    pub fn add(&mut self, number: Number) -> bool {
-        self.superposition.insert(number)
-    }
-
     pub fn contains(&self, number: Number) -> bool {
         self.superposition.contains(&number)
     }

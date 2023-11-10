@@ -14,13 +14,6 @@ pub enum Square {
     Superposition(Superposition),
 }
 impl Square {
-    pub fn add(&mut self, number: Number) -> bool {
-        match self {
-            Self::Number(_collapsed) => false,
-            Self::Superposition(superposition) => superposition.add(number),
-        }
-    }
-
     pub fn collapse(&mut self, number: Number) -> Result<()> {
         match self {
             Self::Number(collapsed) => Err(anyhow!(
