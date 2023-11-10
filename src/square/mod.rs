@@ -14,35 +14,15 @@ pub enum Square {
     Superposition(Superposition),
 }
 impl Square {
-    pub fn collapse(&mut self, number: Number) -> Result<()> {
+    pub fn collapse_random(&mut self) -> Option<Number> {
         match self {
-            Self::Number(collapsed) => Err(anyhow!(
-                "Square already collapsed into {collapsed}, cannot collapse into {number}"
-            )),
+            Self::Number(_collapsed) => None,
             Self::Superposition(superposition) => {
-                if superposition.contains(number) {
-                    *self = Self::Number(number);
-                    Ok(())
-                } else {
-                    Err(anyhow!("Square cannot collapse into {number}"))
-                }
-            }
-        }
-    }
-
-    pub fn collapse_random(&mut self) -> Result<Number> {
-        match self {
-            Self::Number(collapsed) => Err(anyhow!(
-                "Square already collapsed into {collapsed}, cannot collapse into any new number"
-            )),
-            Self::Superposition(superposition) => {
-                let number = superposition
-                    .collapse_random()
-                    .context("Failed to collapse superposition")?;
+                let number = superposition.collapse_random()?;
 
                 *self = Self::Number(number);
 
-                Ok(number)
+                Some(number)
             }
         }
     }
@@ -54,22 +34,31 @@ impl Square {
         }
     }
 
-    pub fn remove(&mut self, number: Number) -> Result<bool> {
+    pub fn remove(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(collapsed) if *collapsed == number => {
-                Err(anyhow!("Tried to remove {number} from {number}"))
-            }
-            Self::Number(_) => Ok(false),
-            Self::Superposition(superposition) => Ok(superposition.remove(number)),
+            Self::Number(_collapsed) => false,
+            Self::Superposition(superposition) => superposition.remove(number),
         }
     }
 
-    pub fn superposition_number(&self) -> Result<usize> {
+    pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Self::Number(collapsed) => Err(anyhow!(
-                "Square already collapsed into {collapsed}, it doesn't have a superposition number"
-            )),
-            Self::Superposition(superposition) => Ok(superposition.superposition_number()),
+            Self::Number(collapsed) => None,
+            Self::Superposition(superposition) => Some(superposition.superposition_number()),
+        }
+    }
+
+    pub fn try_collapse(&mut self, number: Number) -> bool {
+        match self {
+            Self::Number(collapsed) => false,
+            Self::Superposition(superposition) => {
+                if superposition.contains(number) {
+                    *self = Self::Number(number);
+                    true
+                } else {
+                    false
+                }
+            }
         }
     }
 

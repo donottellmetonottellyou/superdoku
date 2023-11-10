@@ -17,7 +17,7 @@ impl Board {
         self.board
             .iter()
             .flat_map(|row| row.iter())
-            .all(|square| square.superposition_number().is_err())
+            .all(|square| square.collapsed_number().is_some())
     }
 
     pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
@@ -45,7 +45,7 @@ impl Board {
     }
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<bool> {
-        if let Ok(()) = self.board[location.0][location.1].collapse(number) {
+        if self.board[location.0][location.1].try_collapse(number) {
             self.propagate_collapse(number, location)
                 .with_context(|| {
                     format!("Failed to propagate collapse of {location:?} to {number}")
@@ -74,7 +74,7 @@ impl Board {
 
         self.board.iter().enumerate().for_each(|(i, row)| {
             row.iter().enumerate().for_each(|(j, square)| {
-                if let Ok(superposition_number) = square.superposition_number() {
+                if let Some(superposition_number) = square.superposition_number() {
                     match superposition_number.cmp(&lowest_number) {
                         Ordering::Equal => lowest_superpositions.push((i, j)),
                         Ordering::Greater => {}
@@ -99,9 +99,7 @@ impl Board {
 
     fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
         for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1]
-                .remove(number)
-                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
+            self.board[location.0][location.1].remove(number);
         }
 
         Ok(())
@@ -110,7 +108,7 @@ impl Board {
     fn propagate_superposition(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
-                self.board[location.0][location.1].remove(collapsed).ok();
+                self.board[location.0][location.1].remove(collapsed);
             }
         }
     }

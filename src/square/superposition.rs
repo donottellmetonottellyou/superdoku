@@ -14,14 +14,13 @@ impl Superposition {
         self.superposition.contains(&number)
     }
 
-    pub fn collapse_random(&self) -> Result<Number> {
+    pub fn collapse_random(&self) -> Option<Number> {
         self.superposition
             .iter()
             .copied()
             .collect::<Vec<_>>()
             .choose(&mut thread_rng())
             .cloned()
-            .context("Failed because there were no options to collapse into")
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
