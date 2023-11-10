@@ -54,6 +54,13 @@ impl Square {
         }
     }
 
+    pub fn collapsed_number(&self) -> Option<Number> {
+        match self {
+            Self::Number(collapsed) => Some(*collapsed),
+            Self::Superposition(_superposition) => None,
+        }
+    }
+
     pub fn remove(&mut self, number: Number) -> Result<bool> {
         match self {
             Self::Number(collapsed) if *collapsed == number => {
@@ -73,15 +80,13 @@ impl Square {
         }
     }
 
-    pub fn undo_collapse(&mut self) -> Option<Number> {
+    pub fn undo_collapse(&mut self) -> bool {
         match self {
-            Self::Number(collapsed) => {
-                let collapsed = *collapsed;
-                *self = Self::Superposition(collapsed.into());
-
-                Some(collapsed)
+            Self::Number(_collapsed) => {
+                *self = Self::Superposition(Superposition::default());
+                true
             }
-            Self::Superposition(_superposition) => None,
+            Self::Superposition(_superposition) => false,
         }
     }
 }
