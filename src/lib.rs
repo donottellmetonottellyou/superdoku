@@ -121,7 +121,7 @@ impl Board {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
                 self.board[location.0][location.1].remove(collapsed);
             } else {
-                self.update_superposition(location);
+                self.update_superposition(neighbor);
             }
         }
     }
