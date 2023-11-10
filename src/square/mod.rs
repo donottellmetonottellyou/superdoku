@@ -114,8 +114,8 @@ mod tests {
             {
                 // Square with no possible options
                 let mut superposition = Superposition::default();
-                for number in &Number::ALL[0..9] {
-                    superposition.remove(*number);
+                for number in Number::ALL {
+                    superposition.remove(number);
                 }
                 Square::Superposition(superposition)
             },
