@@ -49,6 +49,7 @@ impl Board {
     }
 
     pub fn undo(&mut self, location: (usize, usize)) -> bool {
+        // FIXME
         if !self.board[location.0][location.1].undo_collapse() {
             return false;
         };
@@ -119,6 +120,18 @@ impl Board {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
                 self.board[location.0][location.1].remove(collapsed);
+            } else {
+                self.update_superposition(neighbor);
+            }
+        }
+    }
+
+    fn update_superposition(&mut self, location: (usize, usize)) {
+        *self.get_mut(location) = Square::default();
+
+        for neighbor in Self::find_neighbor_locations(location) {
+            if let Some(collapsed_number) = self.get(neighbor).collapsed_number() {
+                self.get_mut(location).remove(collapsed_number);
             }
         }
     }
