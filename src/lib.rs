@@ -127,7 +127,13 @@ impl Board {
     }
 
     fn update_superposition(&mut self, location: (usize, usize)) {
-        todo!()
+        *self.get_mut(location) = Square::default();
+
+        for neighbor in Self::find_neighbor_locations(location) {
+            if let Some(collapsed_number) = self.get(neighbor).collapsed_number() {
+                self.get_mut(location).remove(collapsed_number);
+            }
+        }
     }
 
     fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
