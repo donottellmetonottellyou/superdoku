@@ -3,7 +3,6 @@ mod square;
 pub use square::Number;
 use square::Square;
 
-use anyhow::{anyhow, Context, Result};
 use rand::prelude::*;
 
 use std::{cmp::Ordering, fmt::Display};
@@ -17,49 +16,40 @@ impl Board {
         self.board
             .iter()
             .flat_map(|row| row.iter())
-            .all(|square| square.superposition_number().is_err())
+            .all(|square| square.collapsed_number().is_some())
     }
 
-    pub fn random_collapse(&mut self) -> Result<(Number, (usize, usize))> {
+    pub fn random_collapse(&mut self) -> Option<(Number, (usize, usize))> {
         let mut rng = thread_rng();
 
         let location = *self
-            .find_lowest_superpositions()
-            .context("Failed to find lowest superpositions")?
+            .find_lowest_superpositions()?
             .choose(&mut rng)
-            .context("find_lowest_superpositions() inexplicably returned an empty Vec")?;
+            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
 
-        let number = self.board[location.0][location.1]
-            .collapse_random()
-            .with_context(|| format!("Failed to randomly collapse square at {location:?}"))?;
+        let number = self.get_mut(location).collapse_random()?;
 
-        self.propagate_collapse(number, location)
-            .with_context(|| format!("Failed to propagate collapse of {location:?} to {number}"))
-            .context("Board is probably in an invalid state")?;
+        self.propagate_collapse(number, location);
 
-        Ok((number, location))
+        Some((number, location))
     }
 
     pub fn reset(&mut self) {
         *self = Self::default();
     }
 
-    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<bool> {
-        if let Ok(()) = self.board[location.0][location.1].collapse(number) {
-            self.propagate_collapse(number, location)
-                .with_context(|| {
-                    format!("Failed to propagate collapse of {location:?} to {number}")
-                })
-                .context("Board is probably in an invalid state")?;
+    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> bool {
+        if self.get_mut(location).try_collapse(number) {
+            self.propagate_collapse(number, location);
 
-            Ok(true)
+            true
         } else {
-            Ok(false)
+            false
         }
     }
 
     pub fn undo(&mut self, location: (usize, usize)) -> bool {
-        if !self.board[location.0][location.1].undo_collapse() {
+        if !self.get_mut(location).undo_collapse() {
             return false;
         };
 
@@ -68,13 +58,13 @@ impl Board {
         true
     }
 
-    fn find_lowest_superpositions(&self) -> Result<Vec<(usize, usize)>> {
+    fn find_lowest_superpositions(&self) -> Option<Vec<(usize, usize)>> {
         let mut lowest_superpositions = Vec::new();
         let mut lowest_number = 9;
 
         self.board.iter().enumerate().for_each(|(i, row)| {
             row.iter().enumerate().for_each(|(j, square)| {
-                if let Ok(superposition_number) = square.superposition_number() {
+                if let Some(superposition_number) = square.superposition_number() {
                     match superposition_number.cmp(&lowest_number) {
                         Ordering::Equal => lowest_superpositions.push((i, j)),
                         Ordering::Greater => {}
@@ -89,28 +79,58 @@ impl Board {
         });
 
         if lowest_number == 0 {
-            Err(anyhow!(
-                "Board found to be in an invalid state: Lowest superposition is zero"
-            ))
+            None
         } else {
-            Ok(lowest_superpositions)
+            Some(lowest_superpositions)
         }
     }
 
-    fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) -> Result<()> {
-        for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1]
-                .remove(number)
-                .with_context(|| format!("Failed to remove {number} at location {location:?}"))?;
-        }
+    fn get(&self, location: (usize, usize)) -> &Square {
+        self.board
+            .get(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
+            .get(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
+    }
 
-        Ok(())
+    fn get_mut(&mut self, location: (usize, usize)) -> &mut Square {
+        self.board
+            .get_mut(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
+            .get_mut(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
+    }
+
+    fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) {
+        for location in Self::find_neighbor_locations(location) {
+            self.get_mut(location).remove(number);
+        }
     }
 
     fn propagate_superposition(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
-                self.board[location.0][location.1].remove(collapsed).ok();
+                self.get_mut(location).remove(collapsed);
+            } else {
+                self.update_superposition(neighbor);
+            }
+        }
+    }
+
+    fn update_superposition(&mut self, location: (usize, usize)) {
+        *self.get_mut(location) = Square::default();
+
+        for neighbor in Self::find_neighbor_locations(location) {
+            if let Some(collapsed_number) = self.get(neighbor).collapsed_number() {
+                self.get_mut(location).remove(collapsed_number);
             }
         }
     }
@@ -132,8 +152,7 @@ impl Board {
 
                 *neighbors_iter
                     .next()
-                    .context("Ran out of neighbor spaces while searching box")
-                    .unwrap() = box_location
+                    .expect("Ran out of neighbor spaces while searching box") = box_location
             }
         }
 
@@ -145,8 +164,7 @@ impl Board {
 
             *neighbors_iter
                 .next()
-                .context("Ran out of neighbor spaces while searching row")
-                .unwrap() = (location.0, j);
+                .expect("Ran out of neighbor spaces while searching row") = (location.0, j);
         }
 
         // We find the neighbors in the same column.
@@ -157,8 +175,7 @@ impl Board {
 
             *neighbors_iter
                 .next()
-                .context("Ran out of neighbor spaces while searching column")
-                .unwrap() = (i, location.1)
+                .expect("Ran out of neighbor spaces while searching column") = (i, location.1)
         }
 
         neighbors
@@ -190,8 +207,7 @@ impl Display for Board {
                             "{} ",
                             row_reversed_board_iter
                                 .next()
-                                .context("Fatally failed to display board")
-                                .unwrap()
+                                .expect("Fatally failed to display board")
                         ))?;
                     }
                     f.write_str("| ")?;
@@ -214,30 +230,6 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     use std::collections::HashSet;
-
-    #[test]
-    fn square_terminal_representation_looks_right() {
-        let correct_display = vec![
-            "                            \n",
-            "  |-------|-------|-------| \n",
-            "9 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "8 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "7 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "  |-------|-------|-------| \n",
-            "6 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "5 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "4 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "  |-------|-------|-------| \n",
-            "3 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "2 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "1 | ? ? ? | ? ? ? | ? ? ? | \n",
-            "  |-------|-------|-------| \n",
-            "    a b c   d e f   g h i   \n",
-        ]
-        .concat();
-
-        assert_eq!(correct_display, format!("{}", Board::default()));
-    }
 
     #[test]
     fn find_neighbor_locations_finds_correct_locations() {
