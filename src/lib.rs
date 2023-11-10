@@ -27,7 +27,7 @@ impl Board {
             .choose(&mut rng)
             .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
 
-        let number = self.board[location.0][location.1].collapse_random()?;
+        let number = self.get_mut(location).collapse_random()?;
 
         self.propagate_collapse(number, location);
 
@@ -39,7 +39,7 @@ impl Board {
     }
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> bool {
-        if self.board[location.0][location.1].try_collapse(number) {
+        if self.get_mut(location).try_collapse(number) {
             self.propagate_collapse(number, location);
 
             true
@@ -49,7 +49,7 @@ impl Board {
     }
 
     pub fn undo(&mut self, location: (usize, usize)) -> bool {
-        if !self.board[location.0][location.1].undo_collapse() {
+        if !self.get_mut(location).undo_collapse() {
             return false;
         };
 
@@ -85,16 +85,52 @@ impl Board {
         }
     }
 
+    fn get(&self, location: (usize, usize)) -> &Square {
+        self.board
+            .get(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
+            .get(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get ref to square at {location:?}: not valid location.")
+            })
+    }
+
+    fn get_mut(&mut self, location: (usize, usize)) -> &mut Square {
+        self.board
+            .get_mut(location.0)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
+            .get_mut(location.1)
+            .unwrap_or_else(|| {
+                panic!("Failed to get mut ref to square at {location:?}: not valid location.")
+            })
+    }
+
     fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) {
         for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1].remove(number);
+            self.get_mut(location).remove(number);
         }
     }
 
     fn propagate_superposition(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
-                self.board[location.0][location.1].remove(collapsed);
+                self.get_mut(location).remove(collapsed);
+            } else {
+                self.update_superposition(neighbor);
+            }
+        }
+    }
+
+    fn update_superposition(&mut self, location: (usize, usize)) {
+        *self.get_mut(location) = Square::default();
+
+        for neighbor in Self::find_neighbor_locations(location) {
+            if let Some(collapsed_number) = self.get(neighbor).collapsed_number() {
+                self.get_mut(location).remove(collapsed_number);
             }
         }
     }
