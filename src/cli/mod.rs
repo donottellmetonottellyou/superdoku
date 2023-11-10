@@ -17,14 +17,19 @@ pub fn main() {
             println!("{board}");
             match menus::game::menu() {
                 menus::game::Choice::Move(number, location) => {
-                    if board.try_collapse(number, location) {
-                        println!("Successfully executed move.");
-                    } else {
-                        println!("Failed to execute move.");
-                        println!(
-                            "{number} was not a possibility at {}",
-                            io::location_to_string(location)
-                        );
+                    match board.try_collapse(number, location) {
+                        Ok(true) => println!("Successfully executed move."),
+                        Ok(false) => {
+                            println!("Failed to execute move.");
+                            println!(
+                                "{number} was not a possibility at {}",
+                                io::location_to_string(location)
+                            );
+                        }
+                        Err(error) => {
+                            println!("{error}");
+                            return;
+                        }
                     }
                 }
                 menus::game::Choice::Undo(location) => {
@@ -41,13 +46,13 @@ pub fn main() {
                     }
                 }
                 menus::game::Choice::MoveRandom => match board.random_collapse() {
-                    Some((number, location)) => println!(
+                    Ok((number, location)) => println!(
                         "Successfully chose {number} at {}",
                         io::location_to_string(location)
                     ),
-                    None => {
-                        println!("A random move is not possible at this time.");
-                        println!("Try undoing a move.")
+                    Err(error) => {
+                        println!("{error}");
+                        return;
                     }
                 },
                 menus::game::Choice::End => continue 'main,

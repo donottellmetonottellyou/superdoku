@@ -1,5 +1,6 @@
 use super::Number;
 
+use anyhow::{Context, Result};
 use rand::prelude::*;
 
 use std::{collections::BTreeSet, fmt::Display};
@@ -13,13 +14,14 @@ impl Superposition {
         self.superposition.contains(&number)
     }
 
-    pub fn collapse_random(&self) -> Option<Number> {
+    pub fn collapse_random(&self) -> Result<Number> {
         self.superposition
             .iter()
             .copied()
             .collect::<Vec<_>>()
             .choose(&mut thread_rng())
             .cloned()
+            .context("Failed because there were no options to collapse into")
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
