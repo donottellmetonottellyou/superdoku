@@ -49,6 +49,7 @@ impl Board {
     }
 
     pub fn undo(&mut self, location: (usize, usize)) -> bool {
+        // FIXME
         if !self.board[location.0][location.1].undo_collapse() {
             return false;
         };
