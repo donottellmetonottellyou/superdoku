@@ -96,8 +96,14 @@ impl Board {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
                 self.board[location.0][location.1].remove(collapsed);
+            } else {
+                self.update_superposition(location);
             }
         }
+    }
+
+    fn update_superposition(&mut self, location: (usize, usize)) {
+        todo!()
     }
 
     fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
