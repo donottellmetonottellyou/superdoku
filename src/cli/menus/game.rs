@@ -2,6 +2,7 @@ use superdoku::Number;
 
 pub enum Choice {
     Move(Number, (usize, usize)),
+    Undo((usize, usize)),
     MoveRandom,
     End,
 }
@@ -9,6 +10,7 @@ pub enum Choice {
 pub fn menu() -> Choice {
     loop {
         println!("Move: m number position (m 1 a1)");
+        println!("Undo: u position (u a1)");
         println!("Move Randomly: r");
         println!("Quit: q");
         let mut choice = readln!("Make a choice: ");
@@ -21,10 +23,18 @@ pub fn menu() -> Choice {
             _ => {}
         }
 
-        if choice.as_bytes().first() == Some(&b'M') {
-            if let Some(choice) = parse_move(choice[1..].trim()) {
-                return choice;
+        match choice.as_bytes().first() {
+            Some(b'M') => {
+                if let Some(choice) = parse_move(choice[1..].trim()) {
+                    return choice;
+                }
             }
+            Some(b'U') => {
+                if let Some(choice) = parse_undo(choice[1..].trim()) {
+                    return choice;
+                }
+            }
+            Some(_) | None => {}
         }
 
         println!("I couldn't understand that!");
@@ -41,6 +51,15 @@ fn parse_move(choice: &str) -> Option<Choice> {
         parse_number(choices[0])?,
         parse_location(choices[1])?,
     ))
+}
+
+fn parse_undo(choice: &str) -> Option<Choice> {
+    let choices: Vec<_> = choice.split(' ').collect();
+    if choices.len() != 1 {
+        return None;
+    }
+
+    Some(Choice::Undo(parse_location(choices[0])?))
 }
 
 fn parse_location(location: &str) -> Option<(usize, usize)> {
