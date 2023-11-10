@@ -85,6 +85,14 @@ impl Board {
         }
     }
 
+    fn get(&self, location: (usize, usize)) -> Option<&Square> {
+        self.board.get(location.0)?.get(location.1)
+    }
+
+    fn get_mut(&mut self, location: (usize, usize)) -> Option<&mut Square> {
+        self.board.get_mut(location.0)?.get_mut(location.1)
+    }
+
     fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) {
         for location in Self::find_neighbor_locations(location) {
             self.board[location.0][location.1].remove(number);
