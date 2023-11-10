@@ -83,3 +83,49 @@ impl Display for Square {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn square_displays_correctly() {
+        let square_displays: Vec<_> = vec![
+            Square::Number(Number::One),
+            Square::Number(Number::Two),
+            Square::Number(Number::Three),
+            Square::Number(Number::Four),
+            Square::Number(Number::Five),
+            Square::Number(Number::Six),
+            Square::Number(Number::Seven),
+            Square::Number(Number::Eight),
+            Square::Number(Number::Nine),
+            Square::default(),
+            {
+                // Square with only one superposition option
+                let mut superposition = Superposition::default();
+                for number in &Number::ALL[0..8] {
+                    superposition.remove(*number);
+                }
+                Square::Superposition(superposition)
+            },
+            {
+                // Square with no possible options
+                let mut superposition = Superposition::default();
+                for number in &Number::ALL[0..9] {
+                    superposition.remove(*number);
+                }
+                Square::Superposition(superposition)
+            },
+        ]
+        .into_iter()
+        .map(|square| format!("{square}"))
+        .collect();
+
+        let correct_displays = vec!["1", "2", "3", "4", "5", "6", "7", "8", "9", "?", "!", "0"];
+
+        assert_eq!(correct_displays, square_displays);
+    }
+}
