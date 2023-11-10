@@ -73,8 +73,16 @@ impl Square {
         }
     }
 
-    pub fn undo_collapse(&mut self) -> Result<Number> {
-        todo!()
+    pub fn undo_collapse(&mut self) -> Option<Number> {
+        match self {
+            Self::Number(collapsed) => {
+                let collapsed = *collapsed;
+                *self = Self::Superposition(collapsed.into());
+
+                Some(collapsed)
+            }
+            Self::Superposition(_superposition) => None,
+        }
     }
 }
 impl Default for Square {

@@ -52,3 +52,11 @@ impl Display for Superposition {
         })
     }
 }
+impl From<Number> for Superposition {
+    fn from(number: Number) -> Self {
+        let mut superposition = BTreeSet::new();
+        superposition.insert(number);
+
+        Self { superposition }
+    }
+}
