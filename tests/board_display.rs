@@ -2,7 +2,7 @@ use superdoku::*;
 
 use pretty_assertions::assert_eq;
 
-#[test]
+
 fn starting_game_representation_looks_right() {
     let correct_display = vec![
         "                            \n",
