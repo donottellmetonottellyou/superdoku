@@ -27,7 +27,7 @@ impl Board {
             .choose(&mut rng)
             .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
 
-        let number = self.board[location.0][location.1].collapse_random()?;
+        let number = self.get_mut(location).collapse_random()?;
 
         self.propagate_collapse(number, location);
 
@@ -39,7 +39,7 @@ impl Board {
     }
 
     pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> bool {
-        if self.board[location.0][location.1].try_collapse(number) {
+        if self.get_mut(location).try_collapse(number) {
             self.propagate_collapse(number, location);
 
             true
@@ -49,8 +49,7 @@ impl Board {
     }
 
     pub fn undo(&mut self, location: (usize, usize)) -> bool {
-        // FIXME
-        if !self.board[location.0][location.1].undo_collapse() {
+        if !self.get_mut(location).undo_collapse() {
             return false;
         };
 
@@ -112,14 +111,14 @@ impl Board {
 
     fn propagate_collapse(&mut self, number: Number, location: (usize, usize)) {
         for location in Self::find_neighbor_locations(location) {
-            self.board[location.0][location.1].remove(number);
+            self.get_mut(location).remove(number);
         }
     }
 
     fn propagate_superposition(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
-                self.board[location.0][location.1].remove(collapsed);
+                self.get_mut(location).remove(collapsed);
             } else {
                 self.update_superposition(neighbor);
             }
