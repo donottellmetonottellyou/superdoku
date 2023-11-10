@@ -4,8 +4,6 @@ mod superposition;
 pub use number::Number;
 use superposition::Superposition;
 
-use anyhow::{anyhow, Context, Result};
-
 use std::fmt::Display;
 
 #[derive(Clone, Debug)]
@@ -43,14 +41,14 @@ impl Square {
 
     pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Self::Number(collapsed) => None,
+            Self::Number(_collapsed) => None,
             Self::Superposition(superposition) => Some(superposition.superposition_number()),
         }
     }
 
     pub fn try_collapse(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(collapsed) => false,
+            Self::Number(_collapsed) => false,
             Self::Superposition(superposition) => {
                 if superposition.contains(number) {
                     *self = Self::Number(number);

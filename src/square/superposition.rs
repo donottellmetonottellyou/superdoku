@@ -1,6 +1,5 @@
 use super::Number;
 
-use anyhow::{Context, Result};
 use rand::prelude::*;
 
 use std::{collections::BTreeSet, fmt::Display};
