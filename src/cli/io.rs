@@ -1,5 +1,20 @@
 pub static IO_ERROR: &str = "A fatal I/O error occurred";
 
+pub fn clear() {
+    #[cfg(target_family = "unix")]
+    {
+        std::process::Command::new("clear")
+            .status()
+            .expect(IO_ERROR);
+    }
+    #[cfg(target_family = "windows")]
+    {
+        std::process::Command::new("cls").status().expect(IO_ERROR);
+    }
+    #[cfg(not(any(target_family = "unix", target_family = "windows")))]
+    println!("\n\n\n"); // prints 4 lines as a substitute for clearing
+}
+
 pub fn location_to_string(location: (usize, usize)) -> String {
     format!(
         "{}{}",

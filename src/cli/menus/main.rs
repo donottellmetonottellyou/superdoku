@@ -10,6 +10,10 @@ pub fn menu() -> Choice {
 
     match choice.as_str() {
         "" | "Y" | "YES" => Choice::StartGame,
-        _ => Choice::Quit,
+        "N" | "NO" => Choice::Quit,
+        _ => {
+            println!("I did not understand that.");
+            menu()
+        }
     }
 }
