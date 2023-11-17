@@ -56,6 +56,7 @@ pub fn main() {
 
         // If 'game exits without returning early or continuing the outer 'main loop, we have solved
         // the board!
+        println!("{board}");
         println!("The board was solved!");
     }
 }
