@@ -5,9 +5,13 @@ mod menus;
 use superdoku::Board;
 
 pub fn main() {
+    io::clear();
     'main: loop {
         println!("Welcome to Superdoku!");
-        match menus::main::menu() {
+        let choice = menus::main::menu();
+
+        io::clear();
+        match choice {
             menus::main::Choice::StartGame => {}
             menus::main::Choice::Quit => break 'main,
         }
@@ -15,7 +19,10 @@ pub fn main() {
 
         while !board.is_solved() {
             println!("{board}");
-            match menus::game::menu() {
+            let choice = menus::game::menu();
+
+            io::clear();
+            match choice {
                 menus::game::Choice::Move(number, location) => {
                     if board.try_collapse(number, location) {
                         println!("Successfully executed move.");
