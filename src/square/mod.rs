@@ -8,17 +8,17 @@ use std::fmt::Display;
 
 #[derive(Clone, Debug)]
 pub enum Square {
-    Number(Number),
-    Superposition(Superposition),
+    Incomplete(Superposition),
+    PlayerMove(Number),
 }
 impl Square {
     pub fn collapse_random(&mut self) -> Option<Number> {
         match self {
-            Self::Number(_collapsed) => None,
-            Self::Superposition(superposition) => {
+            Square::PlayerMove(_collapsed) => None,
+            Self::Incomplete(superposition) => {
                 let number = superposition.collapse_random()?;
 
-                *self = Self::Number(number);
+                *self = Square::PlayerMove(number);
 
                 Some(number)
             }
@@ -27,31 +27,31 @@ impl Square {
 
     pub fn collapsed_number(&self) -> Option<Number> {
         match self {
-            Self::Number(collapsed) => Some(*collapsed),
-            Self::Superposition(_superposition) => None,
+            Square::PlayerMove(collapsed) => Some(*collapsed),
+            Self::Incomplete(_superposition) => None,
         }
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(_collapsed) => false,
-            Self::Superposition(superposition) => superposition.remove(number),
+            Square::PlayerMove(_collapsed) => false,
+            Self::Incomplete(superposition) => superposition.remove(number),
         }
     }
 
     pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Self::Number(_collapsed) => None,
-            Self::Superposition(superposition) => Some(superposition.superposition_number()),
+            Square::PlayerMove(_collapsed) => None,
+            Self::Incomplete(superposition) => Some(superposition.superposition_number()),
         }
     }
 
     pub fn try_collapse(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(_collapsed) => false,
-            Self::Superposition(superposition) => {
+            Square::PlayerMove(_collapsed) => false,
+            Self::Incomplete(superposition) => {
                 if superposition.contains(number) {
-                    *self = Self::Number(number);
+                    *self = Square::PlayerMove(number);
                     true
                 } else {
                     false
@@ -62,24 +62,24 @@ impl Square {
 
     pub fn undo_collapse(&mut self) -> bool {
         match self {
-            Self::Number(_collapsed) => {
-                *self = Self::Superposition(Superposition::default());
+            Square::PlayerMove(_collapsed) => {
+                *self = Self::Incomplete(Superposition::default());
                 true
             }
-            Self::Superposition(_superposition) => false,
+            Self::Incomplete(_superposition) => false,
         }
     }
 }
 impl Default for Square {
     fn default() -> Self {
-        Self::Superposition(Superposition::default())
+        Self::Incomplete(Superposition::default())
     }
 }
 impl Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Number(displayable) => displayable.fmt(f),
-            Self::Superposition(displayable) => displayable.fmt(f),
+            Square::PlayerMove(displayable) => displayable.fmt(f),
+            Self::Incomplete(displayable) => displayable.fmt(f),
         }
     }
 }
@@ -93,15 +93,15 @@ mod tests {
     #[test]
     fn square_displays_correctly() {
         let square_displays: Vec<_> = vec![
-            Square::Number(Number::One),
-            Square::Number(Number::Two),
-            Square::Number(Number::Three),
-            Square::Number(Number::Four),
-            Square::Number(Number::Five),
-            Square::Number(Number::Six),
-            Square::Number(Number::Seven),
-            Square::Number(Number::Eight),
-            Square::Number(Number::Nine),
+            Square::PlayerMove(Number::One),
+            Square::PlayerMove(Number::Two),
+            Square::PlayerMove(Number::Three),
+            Square::PlayerMove(Number::Four),
+            Square::PlayerMove(Number::Five),
+            Square::PlayerMove(Number::Six),
+            Square::PlayerMove(Number::Seven),
+            Square::PlayerMove(Number::Eight),
+            Square::PlayerMove(Number::Nine),
             Square::default(),
             {
                 // Square with only one superposition option
@@ -109,7 +109,7 @@ mod tests {
                 for number in &Number::ALL[0..8] {
                     superposition.remove(*number);
                 }
-                Square::Superposition(superposition)
+                Square::Incomplete(superposition)
             },
             {
                 // Square with no possible options
@@ -117,7 +117,7 @@ mod tests {
                 for number in Number::ALL {
                     superposition.remove(number);
                 }
-                Square::Superposition(superposition)
+                Square::Incomplete(superposition)
             },
         ]
         .into_iter()
