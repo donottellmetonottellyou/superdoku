@@ -141,11 +141,21 @@ impl Display for Square {
 mod tests {
     use super::*;
 
+    use ansi_str::AnsiStr;
     use pretty_assertions::assert_eq;
 
     #[test]
     fn square_displays_correctly() {
         let square_displays: Vec<_> = vec![
+            Square::Starting(Number::One),
+            Square::Starting(Number::Two),
+            Square::Starting(Number::Three),
+            Square::Starting(Number::Four),
+            Square::Starting(Number::Five),
+            Square::Starting(Number::Six),
+            Square::Starting(Number::Seven),
+            Square::Starting(Number::Eight),
+            Square::Starting(Number::Nine),
             Square::PlayerMove(Number::One),
             Square::PlayerMove(Number::Two),
             Square::PlayerMove(Number::Three),
@@ -174,10 +184,13 @@ mod tests {
             },
         ]
         .into_iter()
-        .map(|square| format!("{square}"))
+        .map(|square| square.to_string().ansi_strip().to_string())
         .collect();
 
-        let correct_displays = vec!["1", "2", "3", "4", "5", "6", "7", "8", "9", "?", "!", "0"];
+        let correct_displays = vec![
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "2", "3", "4", "5", "6", "7", "8",
+            "9", "?", "!", "0",
+        ];
 
         assert_eq!(correct_displays, square_displays);
     }

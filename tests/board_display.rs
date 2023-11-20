@@ -1,5 +1,6 @@
 use superdoku::*;
 
+use ansi_str::AnsiStr;
 use pretty_assertions::assert_eq;
 
 #[test]
@@ -23,7 +24,10 @@ fn starting_game_representation_looks_right() {
     ]
     .concat();
 
-    assert_eq!(correct_display, format!("{}", Board::default()));
+    assert_eq!(
+        correct_display,
+        Board::default().to_string().ansi_strip().to_string()
+    );
 }
 
 #[test]
@@ -49,7 +53,7 @@ fn game_in_progress_looks_right() {
             "    a b c   d e f   g h i   \n"
         ]
         .concat(),
-        format!("{board}")
+        board.to_string().ansi_strip().to_string()
     );
 
     board.try_move(Number::One, to_location("c6"));
@@ -127,7 +131,7 @@ fn game_in_progress_looks_right() {
             "    a b c   d e f   g h i   \n"
         ]
         .concat(),
-        format!("{board}")
+        board.to_string().ansi_strip().to_string()
     );
 }
 
