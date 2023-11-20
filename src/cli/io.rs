@@ -9,7 +9,11 @@ pub fn clear() {
     }
     #[cfg(target_family = "windows")]
     {
-        std::process::Command::new("cls").status().expect(IO_ERROR);
+        std::process::Command::new("cmd")
+            .arg("/c")
+            .arg("cls")
+            .status()
+            .expect(IO_ERROR);
     }
     #[cfg(not(any(target_family = "unix", target_family = "windows")))]
     println!("\n\n\n"); // prints 4 lines as a substitute for clearing
