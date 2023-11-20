@@ -24,7 +24,7 @@ pub fn main() {
             io::clear();
             match choice {
                 menus::game::Choice::Move(number, location) => {
-                    if board.try_collapse(number, location) {
+                    if board.try_move(number, location) {
                         println!("Successfully executed move.");
                     } else {
                         println!("Failed to execute move.");
@@ -35,7 +35,7 @@ pub fn main() {
                     }
                 }
                 menus::game::Choice::Undo(location) => {
-                    if board.undo(location) {
+                    if board.try_undo_move(location) {
                         println!(
                             "Successfully removed move at {}",
                             io::location_to_string(location)
@@ -47,7 +47,7 @@ pub fn main() {
                         );
                     }
                 }
-                menus::game::Choice::MoveRandom => match board.random_collapse() {
+                menus::game::Choice::MoveRandom => match board.try_random_move() {
                     Some((number, location)) => println!(
                         "Successfully chose {number} at {}",
                         io::location_to_string(location)

@@ -19,27 +19,12 @@ impl Board {
             .all(|square| square.collapsed_number().is_some())
     }
 
-    pub fn random_collapse(&mut self) -> Option<(Number, (usize, usize))> {
-        let mut rng = thread_rng();
-
-        let location = *self
-            .find_lowest_superpositions()?
-            .choose(&mut rng)
-            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
-
-        let number = self.get_mut(location).collapse_random()?;
-
-        self.propagate_collapse(number, location);
-
-        Some((number, location))
-    }
-
     pub fn reset(&mut self) {
         *self = Self::default();
     }
 
-    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> bool {
-        if self.get_mut(location).try_collapse(number) {
+    pub fn try_move(&mut self, number: Number, location: (usize, usize)) -> bool {
+        if self.get_mut(location).try_move(number) {
             self.propagate_collapse(number, location);
 
             true
@@ -48,8 +33,23 @@ impl Board {
         }
     }
 
-    pub fn undo(&mut self, location: (usize, usize)) -> bool {
-        if !self.get_mut(location).undo_collapse() {
+    pub fn try_random_move(&mut self) -> Option<(Number, (usize, usize))> {
+        let mut rng = thread_rng();
+
+        let location = *self
+            .find_lowest_superpositions()?
+            .choose(&mut rng)
+            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
+
+        let number = self.get_mut(location).try_random_move()?;
+
+        self.propagate_collapse(number, location);
+
+        Some((number, location))
+    }
+
+    pub fn try_undo_move(&mut self, location: (usize, usize)) -> bool {
+        if !self.get_mut(location).try_undo_move() {
             return false;
         };
 
