@@ -14,11 +14,11 @@ pub enum Square {
 impl Square {
     pub fn collapse_random(&mut self) -> Option<Number> {
         match self {
-            Square::PlayerMove(_collapsed) => None,
+            Self::PlayerMove(_collapsed) => None,
             Self::Incomplete(superposition) => {
                 let number = superposition.collapse_random()?;
 
-                *self = Square::PlayerMove(number);
+                *self = Self::PlayerMove(number);
 
                 Some(number)
             }
@@ -27,31 +27,31 @@ impl Square {
 
     pub fn collapsed_number(&self) -> Option<Number> {
         match self {
-            Square::PlayerMove(collapsed) => Some(*collapsed),
+            Self::PlayerMove(collapsed) => Some(*collapsed),
             Self::Incomplete(_superposition) => None,
         }
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
         match self {
-            Square::PlayerMove(_collapsed) => false,
+            Self::PlayerMove(_collapsed) => false,
             Self::Incomplete(superposition) => superposition.remove(number),
         }
     }
 
     pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Square::PlayerMove(_collapsed) => None,
+            Self::PlayerMove(_collapsed) => None,
             Self::Incomplete(superposition) => Some(superposition.superposition_number()),
         }
     }
 
     pub fn try_collapse(&mut self, number: Number) -> bool {
         match self {
-            Square::PlayerMove(_collapsed) => false,
+            Self::PlayerMove(_collapsed) => false,
             Self::Incomplete(superposition) => {
                 if superposition.contains(number) {
-                    *self = Square::PlayerMove(number);
+                    *self = Self::PlayerMove(number);
                     true
                 } else {
                     false
@@ -62,7 +62,7 @@ impl Square {
 
     pub fn undo_collapse(&mut self) -> bool {
         match self {
-            Square::PlayerMove(_collapsed) => {
+            Self::PlayerMove(_collapsed) => {
                 *self = Self::Incomplete(Superposition::default());
                 true
             }
@@ -78,7 +78,7 @@ impl Default for Square {
 impl Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Square::PlayerMove(displayable) => displayable.fmt(f),
+            Self::PlayerMove(displayable) => displayable.fmt(f),
             Self::Incomplete(displayable) => displayable.fmt(f),
         }
     }
