@@ -4,6 +4,8 @@ mod superposition;
 pub use number::Number;
 use superposition::Superposition;
 
+use crossterm::style::{Color, Stylize};
+
 use std::fmt::Display;
 
 #[derive(Clone, Debug)]
@@ -116,9 +118,21 @@ impl Default for Square {
 impl Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Incomplete(displayable) => displayable.fmt(f),
-            Self::PlayerMove(displayable) => displayable.fmt(f),
-            Self::Starting(displayable) => displayable.fmt(f),
+            Self::Incomplete(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable.to_string().with(Color::Red),
+                "".with(Color::Reset)
+            )),
+            Self::PlayerMove(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable.to_string().with(Color::Green),
+                "".with(Color::Reset),
+            )),
+            Self::Starting(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable.to_string().with(Color::Blue),
+                "".with(Color::Reset),
+            )),
         }
     }
 }
