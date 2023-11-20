@@ -61,10 +61,47 @@ impl Square {
         }
     }
 
+    pub fn try_random_set(&mut self) -> Option<Number> {
+        match self {
+            Self::Incomplete(superposition) => {
+                let number = superposition.collapse_random()?;
+
+                *self = Self::Starting(number);
+
+                Some(number)
+            }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
+        }
+    }
+
+    pub fn try_set(&mut self, number: Number) -> bool {
+        match self {
+            Self::Incomplete(superposition) => {
+                if superposition.contains(number) {
+                    *self = Self::Starting(number);
+                    true
+                } else {
+                    false
+                }
+            }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
+        }
+    }
+
     pub fn try_undo_move(&mut self) -> bool {
         match self {
             Self::Incomplete(_) | Self::Starting(_) => false,
             Self::PlayerMove(_collapsed) => {
+                *self = Self::Incomplete(Superposition::default());
+                true
+            }
+        }
+    }
+
+    pub fn try_undo_set(&mut self) -> bool {
+        match self {
+            Self::Incomplete(_) | Self::PlayerMove(_) => false,
+            Self::Starting(_collapsed) => {
                 *self = Self::Incomplete(Superposition::default());
                 true
             }
