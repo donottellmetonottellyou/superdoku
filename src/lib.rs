@@ -12,13 +12,6 @@ pub struct Board {
     board: [[Square; 9]; 9],
 }
 impl Board {
-    pub fn is_solvable(&self) -> bool {
-        self.board
-            .iter()
-            .flat_map(|row| row.iter())
-            .all(|square| square.superposition_number().unwrap_or(1) > 0)
-    }
-
     pub fn is_solved(&self) -> bool {
         self.board
             .iter()
