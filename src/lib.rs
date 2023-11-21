@@ -33,6 +33,16 @@ impl Board {
         }
     }
 
+    pub fn try_set(&mut self, number: Number, location: (usize, usize)) -> bool {
+        if self.get_mut(location).try_set(number) {
+            self.propagate_collapse(number, location);
+
+            true
+        } else {
+            false
+        }
+    }
+
     pub fn try_random_move(&mut self) -> Option<(Number, (usize, usize))> {
         let mut rng = thread_rng();
 
@@ -48,10 +58,35 @@ impl Board {
         Some((number, location))
     }
 
+    pub fn try_random_set(&mut self) -> Option<(Number, (usize, usize))> {
+        let mut rng = thread_rng();
+
+        let location = *self
+            .find_highest_superpositions()?
+            .choose(&mut rng)
+            .expect("find_highest_superpositions() inexplicably returned an empty Vec");
+
+        let number = self.get_mut(location).try_random_set()?;
+
+        self.propagate_collapse(number, location);
+
+        Some((number, location))
+    }
+
     pub fn try_undo_move(&mut self, location: (usize, usize)) -> bool {
         if !self.get_mut(location).try_undo_move() {
             return false;
         };
+
+        self.propagate_superposition(location);
+
+        true
+    }
+
+    pub fn try_undo_set(&mut self, location: (usize, usize)) -> bool {
+        if !self.get_mut(location).try_undo_set() {
+            return false;
+        }
 
         self.propagate_superposition(location);
 
