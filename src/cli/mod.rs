@@ -9,13 +9,53 @@ pub fn main() {
     'main: loop {
         println!("Welcome to Superdoku!");
         let choice = menus::StartChoice::get();
-
         io::clear();
+
         match choice {
             menus::StartChoice::StartGame => {}
             menus::StartChoice::Quit => break 'main,
         }
         let mut board = Board::default();
+
+        'setup: loop {
+            println!("{board}");
+            let choice = menus::SetupChoice::get();
+            io::clear();
+
+            match choice {
+                menus::SetupChoice::Set(number, location) => {
+                    if board.try_set(number, location) {
+                        println!("Successfully set starting square.");
+                    } else {
+                        println!("Failed to set starting square.");
+                        println!(
+                            "{number} was not a possibility at {}",
+                            io::location_to_string(location)
+                        );
+                    }
+                }
+                menus::SetupChoice::SetRandom => {
+                    if let Some((number, location)) = board.try_random_set() {
+                        println!(
+                            "Successfully set {number} at {}.",
+                            io::location_to_string(location)
+                        );
+                    } else {
+                        println!("Failed to set random square.");
+                        println!("Maybe undo a set square?");
+                    }
+                }
+                menus::SetupChoice::Undo(location) => {
+                    if board.try_undo_set(location) {
+                        println!("Successfully unset square.");
+                    } else {
+                        println!("Failed to unset {}", io::location_to_string(location));
+                    }
+                }
+                menus::SetupChoice::Finish => break 'setup,
+                menus::SetupChoice::End => continue 'main,
+            }
+        }
 
         while !board.is_solved() {
             println!("{board}");
