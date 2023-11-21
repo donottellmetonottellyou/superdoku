@@ -1,2 +1,5 @@
-pub mod game;
-pub mod main;
+mod game;
+mod start;
+
+pub use game::*;
+pub use start::*;

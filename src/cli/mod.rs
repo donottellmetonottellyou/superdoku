@@ -8,22 +8,22 @@ pub fn main() {
     io::clear();
     'main: loop {
         println!("Welcome to Superdoku!");
-        let choice = menus::main::menu();
+        let choice = menus::StartChoice::get();
 
         io::clear();
         match choice {
-            menus::main::Choice::StartGame => {}
-            menus::main::Choice::Quit => break 'main,
+            menus::StartChoice::StartGame => {}
+            menus::StartChoice::Quit => break 'main,
         }
         let mut board = Board::default();
 
         while !board.is_solved() {
             println!("{board}");
-            let choice = menus::game::menu();
+            let choice = menus::GameChoice::get();
 
             io::clear();
             match choice {
-                menus::game::Choice::Move(number, location) => {
+                menus::GameChoice::Move(number, location) => {
                     if board.try_move(number, location) {
                         println!("Successfully executed move.");
                     } else {
@@ -34,7 +34,7 @@ pub fn main() {
                         );
                     }
                 }
-                menus::game::Choice::Undo(location) => {
+                menus::GameChoice::Undo(location) => {
                     if board.try_undo_move(location) {
                         println!(
                             "Successfully removed move at {}",
@@ -47,7 +47,7 @@ pub fn main() {
                         );
                     }
                 }
-                menus::game::Choice::MoveRandom => match board.try_random_move() {
+                menus::GameChoice::MoveRandom => match board.try_random_move() {
                     Some((number, location)) => println!(
                         "Successfully chose {number} at {}",
                         io::location_to_string(location)
@@ -57,7 +57,7 @@ pub fn main() {
                         println!("Try undoing a move.")
                     }
                 },
-                menus::game::Choice::End => continue 'main,
+                menus::GameChoice::End => continue 'main,
             }
         }
 
