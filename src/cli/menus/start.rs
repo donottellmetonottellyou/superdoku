@@ -1,3 +1,5 @@
+use crate::cli::io::DID_NOT_UNDERSTAND;
+
 pub enum StartChoice {
     StartGame,
     Quit,
@@ -12,7 +14,7 @@ impl StartChoice {
             "" | "Y" | "YES" => StartChoice::StartGame,
             "N" | "NO" => StartChoice::Quit,
             _ => {
-                println!("I did not understand that.");
+                println!("{DID_NOT_UNDERSTAND}");
                 Self::get()
             }
         }
