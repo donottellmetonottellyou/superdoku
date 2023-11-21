@@ -8,10 +8,12 @@
     publish = false
 
 [dependencies]
-    clap = { version = "4.*", features = ["derive"] }
-    rand = { version = "0.8.*" }
+    clap       = { version = "4.*", features = ["derive"] }
+    owo-colors = { version = "3.*", features = ["supports-colors"] }
+    rand       = { version = "0.8.*" }
 
 [dev-dependencies]
+    ansi-str          = { version = "0.8.*" }
     pretty_assertions = { version = "1.*" }
 
 [profile.release]

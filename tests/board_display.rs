@@ -1,5 +1,6 @@
 use superdoku::*;
 
+use ansi_str::AnsiStr;
 use pretty_assertions::assert_eq;
 
 #[test]
@@ -23,13 +24,16 @@ fn starting_game_representation_looks_right() {
     ]
     .concat();
 
-    assert_eq!(correct_display, format!("{}", Board::default()));
+    assert_eq!(
+        correct_display,
+        Board::default().to_string().ansi_strip().to_string()
+    );
 }
 
 #[test]
 fn game_in_progress_looks_right() {
     let mut board = Board::default();
-    board.try_collapse(Number::Five, (0, 2));
+    board.try_move(Number::Five, (0, 2));
     assert_eq!(
         vec![
             "                            \n",
@@ -49,64 +53,64 @@ fn game_in_progress_looks_right() {
             "    a b c   d e f   g h i   \n"
         ]
         .concat(),
-        format!("{board}")
+        board.to_string().ansi_strip().to_string()
     );
 
-    board.try_collapse(Number::One, to_location("c6"));
-    board.try_collapse(Number::Seven, to_location("c7"));
-    board.try_collapse(Number::Six, to_location("c5"));
-    board.try_collapse(Number::Four, to_location("c4"));
-    board.try_collapse(Number::Nine, to_location("c9"));
-    board.try_collapse(Number::Three, to_location("c2"));
-    board.try_collapse(Number::Eight, to_location("c3"));
-    board.try_collapse(Number::Seven, to_location("c8"));
-    board.try_collapse(Number::Nine, to_location("a3"));
-    board.try_collapse(Number::Six, to_location("a2"));
-    board.try_collapse(Number::Seven, to_location("b2"));
-    board.try_collapse(Number::One, to_location("b1"));
-    board.try_collapse(Number::Four, to_location("a1"));
-    board.try_collapse(Number::Two, to_location("b3"));
-    board.try_collapse(Number::Nine, to_location("b6"));
-    board.try_collapse(Number::Five, to_location("b5"));
-    board.try_collapse(Number::Eight, to_location("b4"));
-    board.try_collapse(Number::Six, to_location("b8"));
-    board.try_collapse(Number::Four, to_location("b9"));
-    board.try_collapse(Number::Three, to_location("b7"));
-    board.try_collapse(Number::Three, to_location("a4"));
-    board.try_collapse(Number::Two, to_location("a5"));
-    board.try_collapse(Number::Seven, to_location("a6"));
-    board.try_collapse(Number::One, to_location("a9"));
-    board.try_collapse(Number::Five, to_location("a8"));
-    board.try_collapse(Number::Eight, to_location("a7"));
-    board.try_collapse(Number::Five, to_location("g7"));
-    board.try_collapse(Number::Nine, to_location("h7"));
-    board.try_collapse(Number::Seven, to_location("e7"));
-    board.try_collapse(Number::One, to_location("i7"));
-    board.try_collapse(Number::Six, to_location("d7"));
-    board.try_collapse(Number::Four, to_location("f7"));
-    board.try_collapse(Number::Five, to_location("f9"));
-    board.try_collapse(Number::Three, to_location("e9"));
-    board.try_collapse(Number::Two, to_location("d9"));
-    board.try_collapse(Number::Seven, to_location("h9"));
-    board.try_collapse(Number::Eight, to_location("g9"));
-    board.try_collapse(Number::Six, to_location("i9"));
-    board.try_collapse(Number::Three, to_location("g8"));
-    board.try_collapse(Number::Two, to_location("h8"));
-    board.try_collapse(Number::Four, to_location("i8"));
-    board.try_collapse(Number::Eight, to_location("h1"));
-    board.try_collapse(Number::Three, to_location("h5"));
-    board.try_collapse(Number::Nine, to_location("d8"));
-    board.try_collapse(Number::Eight, to_location("f8"));
-    board.try_collapse(Number::One, to_location("e8"));
-    board.try_collapse(Number::Three, to_location("d1"));
-    board.try_collapse(Number::Seven, to_location("f3"));
-    board.try_collapse(Number::Five, to_location("i3"));
-    board.try_collapse(Number::Four, to_location("h2"));
-    board.try_collapse(Number::Five, to_location("h6"));
-    board.try_collapse(Number::Six, to_location("h4"));
-    board.try_collapse(Number::One, to_location("h3"));
-    board.try_collapse(Number::Four, to_location("d3"));
-    board.try_collapse(Number::Six, to_location("g3"));
+    board.try_move(Number::One, to_location("c6"));
+    board.try_move(Number::Seven, to_location("c7"));
+    board.try_move(Number::Six, to_location("c5"));
+    board.try_move(Number::Four, to_location("c4"));
+    board.try_move(Number::Nine, to_location("c9"));
+    board.try_move(Number::Three, to_location("c2"));
+    board.try_move(Number::Eight, to_location("c3"));
+    board.try_move(Number::Seven, to_location("c8"));
+    board.try_move(Number::Nine, to_location("a3"));
+    board.try_move(Number::Six, to_location("a2"));
+    board.try_move(Number::Seven, to_location("b2"));
+    board.try_move(Number::One, to_location("b1"));
+    board.try_move(Number::Four, to_location("a1"));
+    board.try_move(Number::Two, to_location("b3"));
+    board.try_move(Number::Nine, to_location("b6"));
+    board.try_move(Number::Five, to_location("b5"));
+    board.try_move(Number::Eight, to_location("b4"));
+    board.try_move(Number::Six, to_location("b8"));
+    board.try_move(Number::Four, to_location("b9"));
+    board.try_move(Number::Three, to_location("b7"));
+    board.try_move(Number::Three, to_location("a4"));
+    board.try_move(Number::Two, to_location("a5"));
+    board.try_move(Number::Seven, to_location("a6"));
+    board.try_move(Number::One, to_location("a9"));
+    board.try_move(Number::Five, to_location("a8"));
+    board.try_move(Number::Eight, to_location("a7"));
+    board.try_move(Number::Five, to_location("g7"));
+    board.try_move(Number::Nine, to_location("h7"));
+    board.try_move(Number::Seven, to_location("e7"));
+    board.try_move(Number::One, to_location("i7"));
+    board.try_move(Number::Six, to_location("d7"));
+    board.try_move(Number::Four, to_location("f7"));
+    board.try_move(Number::Five, to_location("f9"));
+    board.try_move(Number::Three, to_location("e9"));
+    board.try_move(Number::Two, to_location("d9"));
+    board.try_move(Number::Seven, to_location("h9"));
+    board.try_move(Number::Eight, to_location("g9"));
+    board.try_move(Number::Six, to_location("i9"));
+    board.try_move(Number::Three, to_location("g8"));
+    board.try_move(Number::Two, to_location("h8"));
+    board.try_move(Number::Four, to_location("i8"));
+    board.try_move(Number::Eight, to_location("h1"));
+    board.try_move(Number::Three, to_location("h5"));
+    board.try_move(Number::Nine, to_location("d8"));
+    board.try_move(Number::Eight, to_location("f8"));
+    board.try_move(Number::One, to_location("e8"));
+    board.try_move(Number::Three, to_location("d1"));
+    board.try_move(Number::Seven, to_location("f3"));
+    board.try_move(Number::Five, to_location("i3"));
+    board.try_move(Number::Four, to_location("h2"));
+    board.try_move(Number::Five, to_location("h6"));
+    board.try_move(Number::Six, to_location("h4"));
+    board.try_move(Number::One, to_location("h3"));
+    board.try_move(Number::Four, to_location("d3"));
+    board.try_move(Number::Six, to_location("g3"));
 
     assert_eq!(
         vec![
@@ -127,7 +131,7 @@ fn game_in_progress_looks_right() {
             "    a b c   d e f   g h i   \n"
         ]
         .concat(),
-        format!("{board}")
+        board.to_string().ansi_strip().to_string()
     );
 }
 

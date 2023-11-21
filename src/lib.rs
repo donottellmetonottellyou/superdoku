@@ -19,27 +19,12 @@ impl Board {
             .all(|square| square.collapsed_number().is_some())
     }
 
-    pub fn random_collapse(&mut self) -> Option<(Number, (usize, usize))> {
-        let mut rng = thread_rng();
-
-        let location = *self
-            .find_lowest_superpositions()?
-            .choose(&mut rng)
-            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
-
-        let number = self.get_mut(location).collapse_random()?;
-
-        self.propagate_collapse(number, location);
-
-        Some((number, location))
-    }
-
     pub fn reset(&mut self) {
         *self = Self::default();
     }
 
-    pub fn try_collapse(&mut self, number: Number, location: (usize, usize)) -> bool {
-        if self.get_mut(location).try_collapse(number) {
+    pub fn try_move(&mut self, number: Number, location: (usize, usize)) -> bool {
+        if self.get_mut(location).try_move(number) {
             self.propagate_collapse(number, location);
 
             true
@@ -48,35 +33,108 @@ impl Board {
         }
     }
 
-    pub fn undo(&mut self, location: (usize, usize)) -> bool {
-        if !self.get_mut(location).undo_collapse() {
+    pub fn try_set(&mut self, number: Number, location: (usize, usize)) -> bool {
+        if self.get_mut(location).try_set(number) {
+            self.propagate_collapse(number, location);
+
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn try_random_move(&mut self) -> Option<(Number, (usize, usize))> {
+        let mut rng = thread_rng();
+
+        let location = *self
+            .find_lowest_superpositions()?
+            .choose(&mut rng)
+            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
+
+        let number = self.get_mut(location).try_random_move()?;
+
+        self.propagate_collapse(number, location);
+
+        Some((number, location))
+    }
+
+    pub fn try_random_set(&mut self) -> Option<(Number, (usize, usize))> {
+        let mut rng = thread_rng();
+
+        let location = *self
+            .find_highest_superpositions()?
+            .choose(&mut rng)
+            .expect("find_highest_superpositions() inexplicably returned an empty Vec");
+
+        let number = self.get_mut(location).try_random_set()?;
+
+        self.propagate_collapse(number, location);
+
+        Some((number, location))
+    }
+
+    pub fn try_undo_move(&mut self, location: (usize, usize)) -> bool {
+        if !self.get_mut(location).try_undo_move() {
             return false;
         };
 
-        self.propagate_superposition(location);
+        self.propagate_undo_collapse(location);
 
         true
+    }
+
+    pub fn try_undo_set(&mut self, location: (usize, usize)) -> bool {
+        if !self.get_mut(location).try_undo_set() {
+            return false;
+        }
+
+        self.propagate_undo_collapse(location);
+
+        true
+    }
+
+    fn find_highest_superpositions(&self) -> Option<Vec<(usize, usize)>> {
+        let mut highest_superpositions = Vec::new();
+        let mut highest_number = 0;
+
+        for (i, j, square) in self {
+            if let Some(superposition_number) = square.superposition_number() {
+                match superposition_number.cmp(&highest_number) {
+                    Ordering::Equal => highest_superpositions.push((i, j)),
+                    Ordering::Greater => {
+                        highest_number = superposition_number;
+                        highest_superpositions.clear();
+                        highest_superpositions.push((i, j));
+                    }
+                    Ordering::Less => {}
+                }
+            }
+        }
+
+        if highest_number == 0 {
+            None
+        } else {
+            Some(highest_superpositions)
+        }
     }
 
     fn find_lowest_superpositions(&self) -> Option<Vec<(usize, usize)>> {
         let mut lowest_superpositions = Vec::new();
         let mut lowest_number = 9;
 
-        self.board.iter().enumerate().for_each(|(i, row)| {
-            row.iter().enumerate().for_each(|(j, square)| {
-                if let Some(superposition_number) = square.superposition_number() {
-                    match superposition_number.cmp(&lowest_number) {
-                        Ordering::Equal => lowest_superpositions.push((i, j)),
-                        Ordering::Greater => {}
-                        Ordering::Less => {
-                            lowest_number = superposition_number;
-                            lowest_superpositions.clear();
-                            lowest_superpositions.push((i, j));
-                        }
+        for (i, j, square) in self {
+            if let Some(superposition_number) = square.superposition_number() {
+                match superposition_number.cmp(&lowest_number) {
+                    Ordering::Equal => lowest_superpositions.push((i, j)),
+                    Ordering::Greater => {}
+                    Ordering::Less => {
+                        lowest_number = superposition_number;
+                        lowest_superpositions.clear();
+                        lowest_superpositions.push((i, j));
                     }
                 }
-            })
-        });
+            }
+        }
 
         if lowest_number == 0 {
             None
@@ -115,7 +173,7 @@ impl Board {
         }
     }
 
-    fn propagate_superposition(&mut self, location: (usize, usize)) {
+    fn propagate_undo_collapse(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
                 self.get_mut(location).remove(collapsed);
@@ -220,6 +278,50 @@ impl Display for Board {
 
         //             |-------|-------|-------|
         f.write_str("    a b c   d e f   g h i   \n")
+    }
+}
+impl<'a> IntoIterator for &'a Board {
+    type IntoIter = BoardSquareIter<'a>;
+    type Item = (usize, usize, &'a Square);
+
+    fn into_iter(self) -> Self::IntoIter {
+        Self::IntoIter {
+            board: self,
+            x: 0,
+            y: 0,
+        }
+    }
+}
+pub struct BoardSquareIter<'a> {
+    board: &'a Board,
+    x: usize,
+    y: usize,
+}
+impl<'a> Iterator for BoardSquareIter<'a> {
+    type Item = (usize, usize, &'a Square);
+    fn next(&mut self) -> Option<Self::Item> {
+        let next;
+
+        if let Some(row) = self.board.board.get(self.x) {
+            if let Some(square) = row.get(self.y) {
+                next = Some((self.x, self.y, square));
+            } else if let Some(Some(square)) = {
+                self.y = 0;
+                self.x += 1;
+
+                self.board.board.get(self.x).map(|row| row.get(self.y))
+            } {
+                next = Some((self.x, self.y, square));
+            } else {
+                next = None
+            }
+        } else {
+            next = None
+        }
+
+        self.y += 1;
+
+        next
     }
 }
 

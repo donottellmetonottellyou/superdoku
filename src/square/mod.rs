@@ -4,82 +4,141 @@ mod superposition;
 pub use number::Number;
 use superposition::Superposition;
 
+use owo_colors::{OwoColorize, Stream::Stdout};
+
 use std::fmt::Display;
 
 #[derive(Clone, Debug)]
 pub enum Square {
-    Number(Number),
-    Superposition(Superposition),
+    Incomplete(Superposition),
+    PlayerMove(Number),
+    Starting(Number),
 }
 impl Square {
-    pub fn collapse_random(&mut self) -> Option<Number> {
-        match self {
-            Self::Number(_collapsed) => None,
-            Self::Superposition(superposition) => {
-                let number = superposition.collapse_random()?;
-
-                *self = Self::Number(number);
-
-                Some(number)
-            }
-        }
-    }
-
     pub fn collapsed_number(&self) -> Option<Number> {
         match self {
-            Self::Number(collapsed) => Some(*collapsed),
-            Self::Superposition(_superposition) => None,
+            Self::Incomplete(_superposition) => None,
+            Self::PlayerMove(collapsed) | Self::Starting(collapsed) => Some(*collapsed),
         }
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(_collapsed) => false,
-            Self::Superposition(superposition) => superposition.remove(number),
+            Self::Incomplete(superposition) => superposition.remove(number),
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
         }
     }
 
     pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Self::Number(_collapsed) => None,
-            Self::Superposition(superposition) => Some(superposition.superposition_number()),
+            Self::Incomplete(superposition) => Some(superposition.superposition_number()),
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
         }
     }
 
-    pub fn try_collapse(&mut self, number: Number) -> bool {
+    pub fn try_move(&mut self, number: Number) -> bool {
         match self {
-            Self::Number(_collapsed) => false,
-            Self::Superposition(superposition) => {
+            Self::Incomplete(superposition) => {
                 if superposition.contains(number) {
-                    *self = Self::Number(number);
+                    *self = Self::PlayerMove(number);
                     true
                 } else {
                     false
                 }
             }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
         }
     }
 
-    pub fn undo_collapse(&mut self) -> bool {
+    pub fn try_random_move(&mut self) -> Option<Number> {
         match self {
-            Self::Number(_collapsed) => {
-                *self = Self::Superposition(Superposition::default());
+            Self::Incomplete(superposition) => {
+                let number = superposition.collapse_random()?;
+
+                *self = Self::PlayerMove(number);
+
+                Some(number)
+            }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
+        }
+    }
+
+    pub fn try_random_set(&mut self) -> Option<Number> {
+        match self {
+            Self::Incomplete(superposition) => {
+                let number = superposition.collapse_random()?;
+
+                *self = Self::Starting(number);
+
+                Some(number)
+            }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
+        }
+    }
+
+    pub fn try_set(&mut self, number: Number) -> bool {
+        match self {
+            Self::Incomplete(superposition) => {
+                if superposition.contains(number) {
+                    *self = Self::Starting(number);
+                    true
+                } else {
+                    false
+                }
+            }
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
+        }
+    }
+
+    pub fn try_undo_move(&mut self) -> bool {
+        match self {
+            Self::Incomplete(_) | Self::Starting(_) => false,
+            Self::PlayerMove(_collapsed) => {
+                *self = Self::Incomplete(Superposition::default());
                 true
             }
-            Self::Superposition(_superposition) => false,
+        }
+    }
+
+    pub fn try_undo_set(&mut self) -> bool {
+        match self {
+            Self::Incomplete(_) | Self::PlayerMove(_) => false,
+            Self::Starting(_collapsed) => {
+                *self = Self::Incomplete(Superposition::default());
+                true
+            }
         }
     }
 }
 impl Default for Square {
     fn default() -> Self {
-        Self::Superposition(Superposition::default())
+        Self::Incomplete(Superposition::default())
     }
 }
 impl Display for Square {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Number(displayable) => displayable.fmt(f),
-            Self::Superposition(displayable) => displayable.fmt(f),
+            Self::Incomplete(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.red()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
+            )),
+            Self::PlayerMove(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.green()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
+            )),
+            Self::Starting(displayable) => f.write_str(&format!(
+                "{}{}",
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.blue()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
+            )),
         }
     }
 }
@@ -88,20 +147,30 @@ impl Display for Square {
 mod tests {
     use super::*;
 
+    use ansi_str::AnsiStr;
     use pretty_assertions::assert_eq;
 
     #[test]
     fn square_displays_correctly() {
         let square_displays: Vec<_> = vec![
-            Square::Number(Number::One),
-            Square::Number(Number::Two),
-            Square::Number(Number::Three),
-            Square::Number(Number::Four),
-            Square::Number(Number::Five),
-            Square::Number(Number::Six),
-            Square::Number(Number::Seven),
-            Square::Number(Number::Eight),
-            Square::Number(Number::Nine),
+            Square::Starting(Number::One),
+            Square::Starting(Number::Two),
+            Square::Starting(Number::Three),
+            Square::Starting(Number::Four),
+            Square::Starting(Number::Five),
+            Square::Starting(Number::Six),
+            Square::Starting(Number::Seven),
+            Square::Starting(Number::Eight),
+            Square::Starting(Number::Nine),
+            Square::PlayerMove(Number::One),
+            Square::PlayerMove(Number::Two),
+            Square::PlayerMove(Number::Three),
+            Square::PlayerMove(Number::Four),
+            Square::PlayerMove(Number::Five),
+            Square::PlayerMove(Number::Six),
+            Square::PlayerMove(Number::Seven),
+            Square::PlayerMove(Number::Eight),
+            Square::PlayerMove(Number::Nine),
             Square::default(),
             {
                 // Square with only one superposition option
@@ -109,7 +178,7 @@ mod tests {
                 for number in &Number::ALL[0..8] {
                     superposition.remove(*number);
                 }
-                Square::Superposition(superposition)
+                Square::Incomplete(superposition)
             },
             {
                 // Square with no possible options
@@ -117,14 +186,17 @@ mod tests {
                 for number in Number::ALL {
                     superposition.remove(number);
                 }
-                Square::Superposition(superposition)
+                Square::Incomplete(superposition)
             },
         ]
         .into_iter()
-        .map(|square| format!("{square}"))
+        .map(|square| square.to_string().ansi_strip().to_string())
         .collect();
 
-        let correct_displays = vec!["1", "2", "3", "4", "5", "6", "7", "8", "9", "?", "!", "0"];
+        let correct_displays = vec![
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "2", "3", "4", "5", "6", "7", "8",
+            "9", "?", "!", "0",
+        ];
 
         assert_eq!(correct_displays, square_displays);
     }

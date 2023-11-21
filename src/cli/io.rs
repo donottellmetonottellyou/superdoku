@@ -1,3 +1,4 @@
+pub static DID_NOT_UNDERSTAND: &str = "I couldn't understand that!";
 pub static IO_ERROR: &str = "A fatal I/O error occurred";
 
 pub fn clear() {
