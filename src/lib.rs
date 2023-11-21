@@ -78,7 +78,7 @@ impl Board {
             return false;
         };
 
-        self.propagate_superposition(location);
+        self.propagate_undo_collapse(location);
 
         true
     }
@@ -88,7 +88,7 @@ impl Board {
             return false;
         }
 
-        self.propagate_superposition(location);
+        self.propagate_undo_collapse(location);
 
         true
     }
@@ -173,7 +173,7 @@ impl Board {
         }
     }
 
-    fn propagate_superposition(&mut self, location: (usize, usize)) {
+    fn propagate_undo_collapse(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
             if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
                 self.get_mut(location).remove(collapsed);
