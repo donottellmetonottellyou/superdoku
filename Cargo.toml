@@ -8,9 +8,9 @@
     publish = false
 
 [dependencies]
-    clap      = { version = "4.*", features = ["derive"] }
-    crossterm = { version = "0.27.*" }
-    rand      = { version = "0.8.*" }
+    clap       = { version = "4.*", features = ["derive"] }
+    owo-colors = { version = "3.*", features = ["supports-colors"] }
+    rand       = { version = "0.8.*" }
 
 [dev-dependencies]
     ansi-str          = { version = "0.8.*" }

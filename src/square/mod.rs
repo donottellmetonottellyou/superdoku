@@ -4,7 +4,7 @@ mod superposition;
 pub use number::Number;
 use superposition::Superposition;
 
-use crossterm::style::{Color, Stylize};
+use owo_colors::{OwoColorize, Stream::Stdout};
 
 use std::fmt::Display;
 
@@ -120,18 +120,24 @@ impl Display for Square {
         match self {
             Self::Incomplete(displayable) => f.write_str(&format!(
                 "{}{}",
-                displayable.to_string().with(Color::Red),
-                "".with(Color::Reset)
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.red()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::PlayerMove(displayable) => f.write_str(&format!(
                 "{}{}",
-                displayable.to_string().with(Color::Green),
-                "".with(Color::Reset),
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.green()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::Starting(displayable) => f.write_str(&format!(
                 "{}{}",
-                displayable.to_string().with(Color::Blue),
-                "".with(Color::Reset),
+                displayable
+                    .to_string()
+                    .if_supports_color(Stdout, |text| text.blue()),
+                String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
         }
     }
