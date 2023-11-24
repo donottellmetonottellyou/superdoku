@@ -122,21 +122,21 @@ impl Display for Square {
                 "{}{}",
                 displayable
                     .to_string()
-                    .if_supports_color(Stdout, |text| text.red()),
+                    .if_supports_color(Stdout, |text| text.bright_yellow()),
                 String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::PlayerMove(displayable) => f.write_str(&format!(
                 "{}{}",
                 displayable
                     .to_string()
-                    .if_supports_color(Stdout, |text| text.green()),
+                    .if_supports_color(Stdout, |text| text.bright_green()),
                 String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::Starting(displayable) => f.write_str(&format!(
                 "{}{}",
                 displayable
                     .to_string()
-                    .if_supports_color(Stdout, |text| text.blue()),
+                    .if_supports_color(Stdout, |text| text.bright_cyan()),
                 String::new().if_supports_color(Stdout, |text| text.default_color())
             )),
         }
