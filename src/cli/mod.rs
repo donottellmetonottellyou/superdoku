@@ -12,7 +12,7 @@ pub fn main() {
         io::clear();
 
         match choice {
-            menus::StartChoice::StartGame => {}
+            menus::StartChoice::StartGame => {},
             menus::StartChoice::Quit => break 'main,
         }
         let mut board = Board::default();
@@ -33,7 +33,7 @@ pub fn main() {
                             io::location_to_string(location)
                         );
                     }
-                }
+                },
                 menus::SetupChoice::SetRandom => {
                     if let Some((number, location)) = board.try_random_set() {
                         println!(
@@ -44,14 +44,17 @@ pub fn main() {
                         println!("Failed to set random square.");
                         println!("Maybe undo a set square?");
                     }
-                }
+                },
                 menus::SetupChoice::Undo(location) => {
                     if board.try_undo_set(location) {
                         println!("Successfully unset square.");
                     } else {
-                        println!("Failed to unset {}", io::location_to_string(location));
+                        println!(
+                            "Failed to unset {}",
+                            io::location_to_string(location)
+                        );
                     }
-                }
+                },
                 menus::SetupChoice::Finish => break 'setup,
                 menus::SetupChoice::End => continue 'main,
             }
@@ -73,7 +76,7 @@ pub fn main() {
                             io::location_to_string(location)
                         );
                     }
-                }
+                },
                 menus::GameChoice::Undo(location) => {
                     if board.try_undo_move(location) {
                         println!(
@@ -86,23 +89,27 @@ pub fn main() {
                             io::location_to_string(location)
                         );
                     }
-                }
-                menus::GameChoice::MoveRandom => match board.try_random_move() {
-                    Some((number, location)) => println!(
-                        "Successfully chose {number} at {}",
-                        io::location_to_string(location)
-                    ),
-                    None => {
-                        println!("A random move is not possible at this time.");
-                        println!("Try undoing a move.")
+                },
+                menus::GameChoice::MoveRandom => {
+                    match board.try_random_move() {
+                        Some((number, location)) => println!(
+                            "Successfully chose {number} at {}",
+                            io::location_to_string(location)
+                        ),
+                        None => {
+                            println!(
+                                "A random move is not possible at this time."
+                            );
+                            println!("Try undoing a move.")
+                        },
                     }
                 },
                 menus::GameChoice::End => continue 'main,
             }
         }
 
-        // If 'game exits without returning early or continuing the outer 'main loop, we have solved
-        // the board!
+        // If 'game exits without returning early or continuing the outer 'main
+        // loop, we have solved the board!
         println!("{board}");
         println!("The board was solved!");
     }

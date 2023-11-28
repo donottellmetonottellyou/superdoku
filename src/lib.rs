@@ -23,7 +23,11 @@ impl Board {
         *self = Self::default();
     }
 
-    pub fn try_move(&mut self, number: Number, location: (usize, usize)) -> bool {
+    pub fn try_move(
+        &mut self,
+        number: Number,
+        location: (usize, usize),
+    ) -> bool {
         if self.get_mut(location).try_move(number) {
             self.propagate_collapse(number, location);
 
@@ -33,7 +37,11 @@ impl Board {
         }
     }
 
-    pub fn try_set(&mut self, number: Number, location: (usize, usize)) -> bool {
+    pub fn try_set(
+        &mut self,
+        number: Number,
+        location: (usize, usize),
+    ) -> bool {
         if self.get_mut(location).try_set(number) {
             self.propagate_collapse(number, location);
 
@@ -49,7 +57,9 @@ impl Board {
         let location = *self
             .find_lowest_superpositions()?
             .choose(&mut rng)
-            .expect("find_lowest_superpositions() inexplicably returned an empty Vec");
+            .expect(
+            "find_lowest_superpositions() inexplicably returned an empty Vec",
+        );
 
         let number = self.get_mut(location).try_random_move()?;
 
@@ -64,7 +74,9 @@ impl Board {
         let location = *self
             .find_highest_superpositions()?
             .choose(&mut rng)
-            .expect("find_highest_superpositions() inexplicably returned an empty Vec");
+            .expect(
+            "find_highest_superpositions() inexplicably returned an empty Vec",
+        );
 
         let number = self.get_mut(location).try_random_set()?;
 
@@ -105,8 +117,8 @@ impl Board {
                         highest_number = superposition_number;
                         highest_superpositions.clear();
                         highest_superpositions.push((i, j));
-                    }
-                    Ordering::Less => {}
+                    },
+                    Ordering::Less => {},
                 }
             }
         }
@@ -126,12 +138,12 @@ impl Board {
             if let Some(superposition_number) = square.superposition_number() {
                 match superposition_number.cmp(&lowest_number) {
                     Ordering::Equal => lowest_superpositions.push((i, j)),
-                    Ordering::Greater => {}
+                    Ordering::Greater => {},
                     Ordering::Less => {
                         lowest_number = superposition_number;
                         lowest_superpositions.clear();
                         lowest_superpositions.push((i, j));
-                    }
+                    },
                 }
             }
         }
@@ -175,7 +187,9 @@ impl Board {
 
     fn propagate_undo_collapse(&mut self, location: (usize, usize)) {
         for neighbor in Self::find_neighbor_locations(location) {
-            if let Some(collapsed) = self.board[neighbor.0][neighbor.1].collapsed_number() {
+            if let Some(collapsed) =
+                self.board[neighbor.0][neighbor.1].collapsed_number()
+            {
                 self.get_mut(location).remove(collapsed);
             } else {
                 self.update_superposition(neighbor);
@@ -187,13 +201,17 @@ impl Board {
         *self.get_mut(location) = Square::default();
 
         for neighbor in Self::find_neighbor_locations(location) {
-            if let Some(collapsed_number) = self.get(neighbor).collapsed_number() {
+            if let Some(collapsed_number) =
+                self.get(neighbor).collapsed_number()
+            {
                 self.get_mut(location).remove(collapsed_number);
             }
         }
     }
 
-    fn find_neighbor_locations(location: (usize, usize)) -> [(usize, usize); 20] {
+    fn find_neighbor_locations(
+        location: (usize, usize),
+    ) -> [(usize, usize); 20] {
         let mut neighbors = [(0, 0); 20];
         let mut neighbors_iter = neighbors.iter_mut();
 
@@ -203,14 +221,16 @@ impl Board {
         // We find the neighbors in the same box.
         for i in 0..3 {
             for j in 0..3 {
-                let box_location = (location_box_corner.0 + i, location_box_corner.1 + j);
+                let box_location =
+                    (location_box_corner.0 + i, location_box_corner.1 + j);
                 if box_location == location {
                     continue;
                 }
 
                 *neighbors_iter
                     .next()
-                    .expect("Ran out of neighbor spaces while searching box") = box_location
+                    .expect("Ran out of neighbor spaces while searching box") =
+                    box_location
             }
         }
 
@@ -222,7 +242,8 @@ impl Board {
 
             *neighbors_iter
                 .next()
-                .expect("Ran out of neighbor spaces while searching row") = (location.0, j);
+                .expect("Ran out of neighbor spaces while searching row") =
+                (location.0, j);
         }
 
         // We find the neighbors in the same column.
@@ -233,7 +254,8 @@ impl Board {
 
             *neighbors_iter
                 .next()
-                .expect("Ran out of neighbor spaces while searching column") = (i, location.1)
+                .expect("Ran out of neighbor spaces while searching column") =
+                (i, location.1)
         }
 
         neighbors
@@ -250,7 +272,8 @@ impl Default for Board {
 }
 impl Display for Board {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut row_reversed_board_iter = self.board.iter().rev().flat_map(|row| row.iter());
+        let mut row_reversed_board_iter =
+            self.board.iter().rev().flat_map(|row| row.iter());
 
         f.write_str("                            \n")?;
         f.write_str("  |-------|-------|-------| \n")?;
@@ -285,11 +308,7 @@ impl<'a> IntoIterator for &'a Board {
     type Item = (usize, usize, &'a Square);
 
     fn into_iter(self) -> Self::IntoIter {
-        Self::IntoIter {
-            board: self,
-            x: 0,
-            y: 0,
-        }
+        Self::IntoIter { board: self, x: 0, y: 0 }
     }
 }
 pub struct BoardSquareIter<'a> {

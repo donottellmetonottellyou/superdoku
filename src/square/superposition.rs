@@ -32,9 +32,7 @@ impl Superposition {
 }
 impl Default for Superposition {
     fn default() -> Self {
-        Self {
-            superposition: BTreeSet::from(Number::ALL),
-        }
+        Self { superposition: BTreeSet::from(Number::ALL) }
     }
 }
 impl Display for Superposition {

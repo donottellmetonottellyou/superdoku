@@ -4,9 +4,7 @@ pub static IO_ERROR: &str = "A fatal I/O error occurred";
 pub fn clear() {
     #[cfg(target_family = "unix")]
     {
-        std::process::Command::new("clear")
-            .status()
-            .expect(IO_ERROR);
+        std::process::Command::new("clear").status().expect(IO_ERROR);
     }
     #[cfg(target_family = "windows")]
     {

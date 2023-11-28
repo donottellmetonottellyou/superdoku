@@ -23,10 +23,8 @@ fn parse_location(location: &str) -> Option<(usize, usize)> {
     }
 
     Some(
-        match (
-            coordinates[0].is_ascii_digit(),
-            coordinates[1].is_ascii_digit(),
-        ) {
+        match (coordinates[0].is_ascii_digit(), coordinates[1].is_ascii_digit())
+        {
             (true, false) => (
                 parse_coordinate(coordinates[0])?,
                 parse_coordinate(coordinates[1])?,

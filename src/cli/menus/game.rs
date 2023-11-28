@@ -21,7 +21,7 @@ impl GameChoice {
         match choice.as_str() {
             "R" => return GameChoice::MoveRandom,
             "Q" => return GameChoice::End,
-            _ => {}
+            _ => {},
         }
 
         match choice.as_bytes().first() {
@@ -29,13 +29,13 @@ impl GameChoice {
                 if let Some(choice) = Self::parse_move(choice[1..].trim()) {
                     return choice;
                 }
-            }
+            },
             Some(b'U') => {
                 if let Some(choice) = Self::parse_undo(choice[1..].trim()) {
                     return choice;
                 }
-            }
-            Some(_) | None => {}
+            },
+            Some(_) | None => {},
         }
 
         println!("{DID_NOT_UNDERSTAND}");

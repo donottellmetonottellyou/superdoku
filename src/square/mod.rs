@@ -18,7 +18,9 @@ impl Square {
     pub fn collapsed_number(&self) -> Option<Number> {
         match self {
             Self::Incomplete(_superposition) => None,
-            Self::PlayerMove(collapsed) | Self::Starting(collapsed) => Some(*collapsed),
+            Self::PlayerMove(collapsed) | Self::Starting(collapsed) => {
+                Some(*collapsed)
+            },
         }
     }
 
@@ -31,7 +33,9 @@ impl Square {
 
     pub fn superposition_number(&self) -> Option<usize> {
         match self {
-            Self::Incomplete(superposition) => Some(superposition.superposition_number()),
+            Self::Incomplete(superposition) => {
+                Some(superposition.superposition_number())
+            },
             Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
         }
     }
@@ -45,7 +49,7 @@ impl Square {
                 } else {
                     false
                 }
-            }
+            },
             Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
         }
     }
@@ -58,7 +62,7 @@ impl Square {
                 *self = Self::PlayerMove(number);
 
                 Some(number)
-            }
+            },
             Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
         }
     }
@@ -71,7 +75,7 @@ impl Square {
                 *self = Self::Starting(number);
 
                 Some(number)
-            }
+            },
             Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
         }
     }
@@ -85,7 +89,7 @@ impl Square {
                 } else {
                     false
                 }
-            }
+            },
             Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => false,
         }
     }
@@ -96,7 +100,7 @@ impl Square {
             Self::PlayerMove(_collapsed) => {
                 *self = Self::Incomplete(Superposition::default());
                 true
-            }
+            },
         }
     }
 
@@ -106,7 +110,7 @@ impl Square {
             Self::Starting(_collapsed) => {
                 *self = Self::Incomplete(Superposition::default());
                 true
-            }
+            },
         }
     }
 }
@@ -123,21 +127,24 @@ impl Display for Square {
                 displayable
                     .to_string()
                     .if_supports_color(Stdout, |text| text.bright_yellow()),
-                String::new().if_supports_color(Stdout, |text| text.default_color())
+                String::new()
+                    .if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::PlayerMove(displayable) => f.write_str(&format!(
                 "{}{}",
                 displayable
                     .to_string()
                     .if_supports_color(Stdout, |text| text.bright_green()),
-                String::new().if_supports_color(Stdout, |text| text.default_color())
+                String::new()
+                    .if_supports_color(Stdout, |text| text.default_color())
             )),
             Self::Starting(displayable) => f.write_str(&format!(
                 "{}{}",
                 displayable
                     .to_string()
                     .if_supports_color(Stdout, |text| text.bright_cyan()),
-                String::new().if_supports_color(Stdout, |text| text.default_color())
+                String::new()
+                    .if_supports_color(Stdout, |text| text.default_color())
             )),
         }
     }
@@ -194,8 +201,8 @@ mod tests {
         .collect();
 
         let correct_displays = vec![
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "2", "3", "4", "5", "6", "7", "8",
-            "9", "?", "!", "0",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "1", "2", "3", "4",
+            "5", "6", "7", "8", "9", "?", "!", "0",
         ];
 
         assert_eq!(correct_displays, square_displays);

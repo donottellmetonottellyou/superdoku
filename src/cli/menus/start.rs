@@ -16,7 +16,7 @@ impl StartChoice {
             _ => {
                 println!("{DID_NOT_UNDERSTAND}");
                 Self::get()
-            }
+            },
         }
     }
 }

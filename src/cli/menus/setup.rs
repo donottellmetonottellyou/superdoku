@@ -24,7 +24,7 @@ impl SetupChoice {
             "R" => return Self::SetRandom,
             "F" => return Self::Finish,
             "Q" => return Self::End,
-            _ => {}
+            _ => {},
         }
 
         match choice.as_bytes().first() {
@@ -32,13 +32,13 @@ impl SetupChoice {
                 if let Some(choice) = Self::parse_set(choice[1..].trim()) {
                     return choice;
                 }
-            }
+            },
             Some(b'U') => {
                 if let Some(choice) = Self::parse_undo(choice[1..].trim()) {
                     return choice;
                 }
-            }
-            Some(_) | None => {}
+            },
+            Some(_) | None => {},
         }
 
         println!("{DID_NOT_UNDERSTAND}");
