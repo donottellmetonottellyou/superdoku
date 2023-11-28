@@ -348,6 +348,42 @@ struct Step {
     number: Number,
     location: (usize, usize),
 }
+impl Step {
+    pub fn new(number: Number, location: (usize, usize)) -> Self {
+        Self { number, location }
+    }
+
+    fn find_easiest_steps(board: &Board) -> Option<Vec<Step>> {
+        let mut easiest = Vec::new();
+        let mut lowest_number = 9;
+
+        for (i, j, square) in board {
+            if let Some(numbers) = square.possible_numbers() {
+                match lowest_number.cmp(&numbers.len()) {
+                    Ordering::Equal => {
+                        for number in numbers {
+                            easiest.push(Self::new(number, (i, j)));
+                        }
+                    },
+                    Ordering::Greater => {},
+                    Ordering::Less => {
+                        lowest_number = numbers.len();
+                        easiest.clear();
+                        for number in numbers {
+                            easiest.push(Self::new(number, (i, j)));
+                        }
+                    },
+                }
+            }
+        }
+
+        if lowest_number == 0 {
+            None
+        } else {
+            Some(easiest)
+        }
+    }
+}
 
 struct GuessStep {
     wrong_starts: Vec<Step>,

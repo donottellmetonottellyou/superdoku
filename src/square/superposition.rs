@@ -17,6 +17,14 @@ impl Superposition {
         self.superposition.choose(&mut thread_rng()).cloned()
     }
 
+    pub fn possible_numbers(&self) -> Option<Vec<Number>> {
+        if self.superposition.is_empty() {
+            None
+        } else {
+            Some(self.superposition.clone())
+        }
+    }
+
     pub fn remove(&mut self, number: Number) -> bool {
         if let Ok(index) = self.superposition.binary_search(&number) {
             self.superposition.remove(index);
