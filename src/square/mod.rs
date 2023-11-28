@@ -24,6 +24,15 @@ impl Square {
         }
     }
 
+    pub fn possible_numbers(&self) -> Option<Vec<Number>> {
+        match self {
+            Self::Incomplete(superposition) => {
+                Some(superposition.possible_numbers()?)
+            },
+            Self::PlayerMove(_collapsed) | Self::Starting(_collapsed) => None,
+        }
+    }
+
     pub fn remove(&mut self, number: Number) -> bool {
         match self {
             Self::Incomplete(superposition) => superposition.remove(number),
