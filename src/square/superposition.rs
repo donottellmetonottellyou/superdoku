@@ -2,28 +2,28 @@ use super::Number;
 
 use rand::prelude::*;
 
-use std::{collections::BTreeSet, fmt::Display};
+use std::fmt::Display;
 
 #[derive(Clone, Debug)]
 pub struct Superposition {
-    superposition: BTreeSet<Number>,
+    superposition: Vec<Number>,
 }
 impl Superposition {
     pub fn contains(&self, number: Number) -> bool {
-        self.superposition.contains(&number)
+        self.superposition.binary_search(&number).is_ok()
     }
 
     pub fn collapse_random(&self) -> Option<Number> {
-        self.superposition
-            .iter()
-            .copied()
-            .collect::<Vec<_>>()
-            .choose(&mut thread_rng())
-            .cloned()
+        self.superposition.choose(&mut thread_rng()).cloned()
     }
 
     pub fn remove(&mut self, number: Number) -> bool {
-        self.superposition.remove(&number)
+        if let Ok(index) = self.superposition.binary_search(&number) {
+            self.superposition.remove(index);
+            true
+        } else {
+            false
+        }
     }
 
     pub fn superposition_number(&self) -> usize {
@@ -32,7 +32,7 @@ impl Superposition {
 }
 impl Default for Superposition {
     fn default() -> Self {
-        Self { superposition: BTreeSet::from(Number::ALL) }
+        Self { superposition: Number::ALL.into() }
     }
 }
 impl Display for Superposition {
