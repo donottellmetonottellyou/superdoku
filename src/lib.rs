@@ -5,7 +5,7 @@ use square::Square;
 
 use rand::prelude::*;
 
-use std::{cmp::Ordering, fmt::Display};
+use std::{cmp::Ordering, collections::VecDeque, fmt::Display};
 
 #[derive(Clone, Debug)]
 pub struct Board {
@@ -342,6 +342,20 @@ impl<'a> Iterator for BoardSquareIter<'a> {
 
         next
     }
+}
+
+struct Step {
+    number: Number,
+    location: (usize, usize),
+}
+
+struct GuessStep {
+    wrong_starts: Vec<Step>,
+    steps: VecDeque<Step>,
+}
+
+struct Solution {
+    steps: VecDeque<GuessStep>,
 }
 
 #[cfg(test)]
