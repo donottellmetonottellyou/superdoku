@@ -1,22 +1,22 @@
 [package]
-    name    = "superdoku"
-    version = "0.3.0"
+name = "superdoku"
+version = "0.2.3"
 
-    authors = ["Jade Lynn Masker <donottellmetonottellyou@gmail.com>"]
+authors = ["Jade Lynn Masker <donottellmetonottellyou@gmail.com>"]
 
-    edition = "2021"
-    publish = false
+edition = "2021"
+publish = false
 
 [dependencies]
-    clap       = { version = "4.*", features = ["derive"] }
-    owo-colors = { version = "3.*", features = ["supports-colors"] }
-    rand       = { version = "0.8.*" }
+clap = { version = "4.*", features = ["derive"] }
+owo-colors = { version = "3.*", features = ["supports-colors"] }
+rand = { version = "0.8.*" }
 
 [dev-dependencies]
-    ansi-str          = { version = "0.8.*" }
-    pretty_assertions = { version = "1.*" }
+ansi-str = { version = "0.8.*" }
+pretty_assertions = { version = "1.*" }
 
 [profile.release]
-    codegen-units = 1
-    lto           = true
-    strip         = true
+codegen-units = 1
+lto = true
+strip = true
